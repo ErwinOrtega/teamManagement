@@ -116,6 +116,17 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       </div>
     </div>
 
+    <div id="tab-tasks" class="tab hidden space-y-6">
+      <div class="flex justify-between items-end gap-3 flex-wrap"><div><h2 class="text-base font-semibold">Lista de tareas</h2><p class="text-xs text-neutral-500">Lo que queremos hacer, en un solo lugar.</p></div><span id="task-count" class="text-xs text-neutral-500"></span></div>
+      <div class="bar"><i id="task-bar" style="width:0%"></i></div>
+      <div class="ed flex gap-2"><input id="task-input" class="inp" placeholder="Escribe una tarea y pulsa Enter…" onkeydown="if(event.key==='Enter')addTask()"><button type="button" onclick="addTask()" class="bw">Agregar</button></div>
+      <div class="card p-2"><ul id="task-pending" class="divide-y divide-neutral-900"></ul></div>
+      <div>
+        <div class="flex justify-between items-center mb-2"><h3 class="text-xs text-neutral-400 uppercase">Completadas</h3><button type="button" onclick="clearDone()" class="ed text-[11px] text-neutral-500 hover:text-rose-400">Limpiar completadas</button></div>
+        <div class="card p-2"><ul id="task-done" class="divide-y divide-neutral-900"></ul></div>
+      </div>
+    </div>
+
     <div id="tab-members" class="tab hidden space-y-6">
       <div><h2 class="text-base font-semibold">Equipo</h2><p class="text-xs text-neutral-500">Las cuentas nuevas entran como "Lectura". Un administrador les asigna su rol.</p></div>
       <div id="members-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -136,7 +147,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
   <div><label class="lbl">Concepto</label><input id="fin-concept" class="inp"></div>
   <div class="grid grid-cols-2 gap-3">
     <div><label class="lbl">Proyecto (opcional)</label><select id="fin-project" class="inp"></select></div>
-    <div><label class="lbl">Categoría</label><select id="fin-cat" class="inp"><option>Materiales</option><option>Equipos</option><option>Servicios</option><option>Honorarios</option><option>Transporte</option><option>Financiación</option><option selected>Otros</option></select></div>
+    <div><label class="lbl">Categoría</label><select id="fin-cat" class="inp"><option>Materiales</option><option>Equipos</option><option>Servicios</option><option>Honorarios</option><option>Transporte</option><option>Comida</option><option>Micro-emprendimientos</option><option>Financiación</option><option selected>Otros</option></select></div>
   </div>
   <div class="grid grid-cols-2 gap-3">
     <div><label class="lbl">Tipo</label><select id="fin-type" class="inp"><option value="income">Ingreso (+)</option><option value="expense">Egreso (-)</option></select></div>
@@ -176,7 +187,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const STATUS = { todo: 'Por Hacer', in_progress: 'En Progreso', done: 'Completado' };
 const ORDER = ['todo', 'in_progress', 'done'];
 const ROLES = { admin: 'Administrador', editor: 'Editor', lectura: 'Lectura' };
-const TABS = [['dashboard', '📊', 'Dashboard'], ['finances', '💰', 'Finanzas & Caja'], ['projects', '📋', 'Proyectos & Kanban'], ['members', '👥', 'Equipo & Roles'], ['audit', '🕘', 'Auditoría']];
+const TABS = [['dashboard', '📊', 'Dashboard'], ['finances', '💰', 'Finanzas & Caja'], ['projects', '📋', 'Proyectos & Kanban'], ['tasks', '✅', 'Lista de tareas'], ['members', '👥', 'Equipo & Roles'], ['audit', '🕘', 'Auditoría']];
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const MONEDA = 'COP'; // cambia a 'USD', 'EUR', etc.
@@ -189,7 +200,7 @@ if (SUPABASE_URL.startsWith('PEGA')) {
   throw new Error('Supabase sin configurar');
 }
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const S = { projects: [], finances: [], profiles: [], audit_log: [] };
+const S = { projects: [], finances: [], profiles: [], audit_log: [], tasks: [] };
 let me = null, chart = null, currentTab = 'dashboard', started = null, signup = false;
 
 /* ---------- Autenticación ---------- */
@@ -249,7 +260,8 @@ const ORDERBY = {
   projects: q => q.order('created_at'),
   finances: q => q.order('date', { ascending: false }),
   profiles: q => q.order('created_at'),
-  audit_log: q => q.order('created_at', { ascending: false }).limit(100)
+  audit_log: q => q.order('created_at', { ascending: false }).limit(100),
+  tasks: q => q.order('created_at')
 };
 async function load(t) {
   const { data, error } = await ORDERBY[t](sb.from(t).select('*'));
@@ -275,7 +287,7 @@ async function q(promise, ok) {
 }
 const projName = id => (S.projects.find(p => p.id === id) || {}).name || 'Fondo General';
 const PRIO = { alta: 'border-rose-800 text-rose-400', media: 'border-amber-800 text-amber-400', baja: 'border-neutral-700 text-neutral-400' };
-const PAL = ['#10b981', '#38bdf8', '#a78bfa', '#f59e0b', '#f43f5e', '#14b8a6', '#94a3b8'];
+const PAL = ['#10b981', '#38bdf8', '#a78bfa', '#f59e0b', '#f43f5e', '#14b8a6', '#94a3b8', '#fb923c', '#e879f9'];
 let chart2 = null;
 document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal.open').forEach(m => m.classList.remove('open')); });
 
@@ -449,8 +461,37 @@ function renderChart() {
 }
 function renderAll() {
   if (!me) return;
-  renderFinances(); renderProjects(); renderMembers(); renderAudit(); renderDashboard();
+  renderFinances(); renderProjects(); renderMembers(); renderAudit(); renderDashboard(); renderTasks();
   if (currentTab === 'dashboard') renderChart();
+}
+function renderTasks() {
+  const ce = ['admin', 'editor'].includes(me.role);
+  const who = id => { const p = S.profiles.find(x => x.id === id); return p ? (p.full_name || p.email) : ''; };
+  const row = t => `<li class="flex items-center gap-3 px-2 py-2.5"><input type="checkbox" ${t.done ? 'checked' : ''} ${ce ? '' : 'disabled'} onchange="toggleTask('${esc(t.id)}',this.checked)" class="w-4 h-4 accent-white shrink-0">
+    <span class="flex-1 text-xs ${t.done ? 'line-through text-neutral-600' : 'text-neutral-100'}">${esc(t.title)}</span>
+    <span class="text-[10px] text-neutral-600 hidden sm:inline">${esc(who(t.created_by))}</span>
+    <button type="button" onclick="deleteTask('${esc(t.id)}')" class="ed text-neutral-600 hover:text-rose-400 text-[11px]">✕</button></li>`;
+  const pend = S.tasks.filter(t => !t.done);
+  const done = S.tasks.filter(t => t.done).sort((a, b) => String(b.done_at || '').localeCompare(String(a.done_at || '')));
+  $('task-pending').innerHTML = pend.map(row).join('') || '<li class="p-4 text-center text-xs text-neutral-600">No hay tareas pendientes 🎉</li>';
+  $('task-done').innerHTML = done.map(row).join('') || '<li class="p-4 text-center text-xs text-neutral-600">Aún no hay tareas completadas.</li>';
+  $('task-count').textContent = `${pend.length} pendientes · ${done.length} completadas`;
+  $('task-bar').style.width = (S.tasks.length ? Math.round(done.length / S.tasks.length * 100) : 0) + '%';
+}
+async function addTask() {
+  const el = $('task-input'), title = el.value.trim();
+  if (!title) return;
+  if (await q(sb.from('tasks').insert({ title }))) el.value = '';
+}
+async function toggleTask(id, done) {
+  const t = S.tasks.find(x => x.id === id);
+  if (t) { t.done = done; t.done_at = done ? new Date().toISOString() : null; renderTasks(); }
+  if (!(await q(sb.from('tasks').update({ done, done_at: done ? new Date().toISOString() : null }).eq('id', id)))) load('tasks');
+}
+async function deleteTask(id) { await q(sb.from('tasks').delete().eq('id', id)); }
+async function clearDone() {
+  if (!S.tasks.some(t => t.done) || !confirm('¿Eliminar todas las tareas completadas?')) return;
+  await q(sb.from('tasks').delete().eq('done', true), 'Tareas completadas eliminadas');
 }
 function exportCSV() {
   const cell = c => { let s = String(c ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
