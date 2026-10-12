@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nexus Core</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+body{background:#000}
+.inp{width:100%;background:#171717;border:1px solid #262626;border-radius:.25rem;padding:.5rem;color:#fff;font-size:.75rem}
+.inp:focus{outline:none;border-color:#fff}
+.lbl{display:block;color:#a3a3a3;margin-bottom:.25rem;font-size:.75rem}
+.bw{background:#fff;color:#000;font-weight:600;border-radius:.5rem;padding:.4rem .75rem;font-size:.75rem}
+.bw:hover{background:#e5e5e5}
+.bg{background:#171717;color:#a3a3a3;border-radius:.25rem;padding:.4rem .75rem;font-size:.75rem}
+.bg:hover{color:#fff}
+.card{background:#0a0a0a;border:1px solid #171717;border-radius:.75rem}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);align-items:center;justify-content:center;padding:1rem;z-index:60}
+.modal.open{display:flex}
+.modal>div{background:#0a0a0a;border:1px solid #262626;width:100%;max-width:28rem;border-radius:.75rem;padding:1.25rem;display:grid;gap:.75rem;font-size:.75rem}
+.mf{display:flex;justify-content:flex-end;gap:.5rem;padding-top:.75rem;border-top:1px solid #171717}
+body:not(.r-edit) .ed{display:none!important}
+body:not(.r-admin) .ad{display:none!important}
+</style>
+</head>
+<body class="text-neutral-100 min-h-screen font-sans">
+
+<!-- CONFIGURACIÓN: pega aquí tus datos de Supabase (Project Settings > API) -->
+<script>
+const SUPABASE_URL = 'https://xriorxsrovlipetxvmhp.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhyaW9yeHNyb3ZsaXBldHh2bWhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE3NjM0MDQsImV4cCI6MjEwNzMzOTQwNH0.-2fKZOOQgCdSgUlGYSxUHNILOxGdn7hVXqylqrGMEAo';
+</script>
+
+<!-- PANTALLA DE LOGIN -->
+<div id="auth" class="min-h-screen flex items-center justify-center p-4">
+  <form id="auth-form" class="card w-full max-w-sm p-6 space-y-4" onsubmit="return doAuth(event)">
+    <div class="text-center"><div class="text-2xl">◼</div><h1 class="text-lg font-semibold">NEXUS CORE</h1><p id="auth-sub" class="text-xs text-neutral-500">Inicia sesión para continuar</p></div>
+    <div id="name-wrap" class="hidden"><label class="lbl">Nombre completo</label><input id="a-name" class="inp"></div>
+    <div><label class="lbl">Correo</label><input id="a-email" type="email" required class="inp"></div>
+    <div><label class="lbl">Contraseña</label><input id="a-pass" type="password" minlength="6" required class="inp"></div>
+    <p id="auth-msg" class="text-xs text-rose-400 min-h-[1rem]"></p>
+    <button id="auth-btn" class="bw w-full py-2">Entrar</button>
+    <button type="button" onclick="toggleAuth()" id="auth-toggle" class="w-full text-xs text-neutral-500 hover:text-white">¿No tienes cuenta? Regístrate</button>
+  </form>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+<header class="border-b border-neutral-900 bg-black sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+    <div class="flex items-center gap-3"><div class="bg-white text-black px-2.5 py-1.5 rounded-lg">◼</div>
+      <div><h1 class="text-base font-semibold">NEXUS CORE</h1><p class="text-xs text-neutral-500">Proyectos & Finanzas</p></div></div>
+    <div class="flex items-center gap-2 text-xs">
+      <span id="who" class="text-neutral-400"></span>
+      <button type="button" onclick="exportData()" class="bg">⬇ Exportar</button>
+      <button type="button" onclick="sb.auth.signOut()" class="bg">Salir</button>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+  <aside><nav id="nav" class="card p-2 space-y-1"></nav></aside>
+  <section class="lg:col-span-3 space-y-6">
+
+    <div id="tab-dashboard" class="tab space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="card p-4"><span class="text-[11px] text-neutral-500 uppercase font-semibold">Balance</span><div id="kpi-balance" class="text-2xl font-semibold mt-1">$0.00</div></div>
+        <div class="card p-4"><span class="text-[11px] text-neutral-500 uppercase font-semibold">Ingresos</span><div id="kpi-income" class="text-2xl font-semibold text-emerald-400 mt-1">$0.00</div></div>
+        <div class="card p-4"><span class="text-[11px] text-neutral-500 uppercase font-semibold">Egresos</span><div id="kpi-expense" class="text-2xl font-semibold text-rose-400 mt-1">$0.00</div></div>
+      </div>
+      <div class="card p-4 space-y-3"><h3 class="text-xs text-neutral-400 uppercase">Flujo de caja por mes</h3><div class="h-64"><canvas id="chart"></canvas></div></div>
+    </div>
+
+    <div id="tab-finances" class="tab hidden space-y-6">
+      <div class="flex justify-between items-center"><div><h2 class="text-base font-semibold">Movimientos</h2><p class="text-xs text-neutral-500">Ingresos y gastos.</p></div>
+        <button type="button" onclick="openFin()" class="bw ed">+ Registrar</button></div>
+      <div class="card overflow-x-auto"><table class="w-full text-left text-xs text-neutral-300">
+        <thead class="bg-neutral-900/50 text-neutral-500 uppercase"><tr><th class="p-3">Fecha</th><th class="p-3">Concepto</th><th class="p-3">Proyecto</th><th class="p-3">Tipo</th><th class="p-3">Monto</th><th class="p-3"></th></tr></thead>
+        <tbody id="fin-body" class="divide-y divide-neutral-900"></tbody></table></div>
+    </div>
+
+    <div id="tab-projects" class="tab hidden space-y-6">
+      <div class="flex justify-between items-center"><div><h2 class="text-base font-semibold">Proyectos</h2><p class="text-xs text-neutral-500">Presupuesto asignado vs. ejecutado.</p></div>
+        <button type="button" onclick="openProj()" class="bw ed">+ Nuevo Proyecto</button></div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="card p-3 space-y-3"><div class="text-[11px] font-semibold text-neutral-400 uppercase flex justify-between border-b border-neutral-900 pb-2"><span>Por Hacer</span><span id="count-todo">0</span></div><div id="col-todo" class="space-y-3 min-h-[200px]"></div></div>
+        <div class="card p-3 space-y-3"><div class="text-[11px] font-semibold text-neutral-300 uppercase flex justify-between border-b border-neutral-900 pb-2"><span>En Progreso</span><span id="count-in_progress">0</span></div><div id="col-in_progress" class="space-y-3 min-h-[200px]"></div></div>
+        <div class="card p-3 space-y-3"><div class="text-[11px] font-semibold text-emerald-400 uppercase flex justify-between border-b border-neutral-900 pb-2"><span>Completado</span><span id="count-done">0</span></div><div id="col-done" class="space-y-3 min-h-[200px]"></div></div>
+      </div>
+    </div>
+
+    <div id="tab-members" class="tab hidden space-y-6">
+      <div><h2 class="text-base font-semibold">Equipo</h2><p class="text-xs text-neutral-500">Quien se registra entra como "Lectura". Un administrador le asigna su rol.</p></div>
+      <div id="members-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </div>
+
+    <div id="tab-audit" class="tab hidden space-y-6">
+      <div><h2 class="text-base font-semibold">Auditoría</h2><p class="text-xs text-neutral-500">Registrada por el servidor. Últimas 100 acciones.</p></div>
+      <div class="card p-4"><ul id="audit-list" class="space-y-3 text-xs text-neutral-400 divide-y divide-neutral-900"></ul></div>
+    </div>
+  </section>
+</main>
+</div>
+
+<!-- MODALES -->
+<div id="finModal" class="modal"><div>
+  <h3 class="font-semibold uppercase">Registrar Transacción</h3>
+  <div><label class="lbl">Concepto</label><input id="fin-concept" class="inp"></div>
+  <div><label class="lbl">Proyecto (opcional)</label><select id="fin-project" class="inp"></select></div>
+  <div class="grid grid-cols-2 gap-3">
+    <div><label class="lbl">Tipo</label><select id="fin-type" class="inp"><option value="income">Ingreso (+)</option><option value="expense">Egreso (-)</option></select></div>
+    <div><label class="lbl">Monto ($)</label><input type="number" step="0.01" min="0" id="fin-amount" class="inp"></div>
+  </div>
+  <div><label class="lbl">Fecha</label><input type="date" id="fin-date" class="inp"></div>
+  <div class="mf"><button type="button" onclick="closeModal('finModal')" class="bg">Cancelar</button><button type="button" onclick="saveFinance()" class="bw">Guardar</button></div>
+</div></div>
+
+<div id="projModal" class="modal"><div>
+  <h3 class="font-semibold uppercase">Nuevo Proyecto</h3>
+  <div><label class="lbl">Nombre</label><input id="proj-name" class="inp"></div>
+  <div class="grid grid-cols-2 gap-3">
+    <div><label class="lbl">Categoría</label><select id="proj-category" class="inp"><option>Académico</option><option value="Comercial">Comercial / Empresa</option><option>Investigación</option></select></div>
+    <div><label class="lbl">Presupuesto ($)</label><input type="number" step="0.01" min="0" id="proj-budget" class="inp"></div>
+  </div>
+  <div><label class="lbl">Estado inicial</label><select id="proj-status" class="inp"><option value="todo">Por Hacer</option><option value="in_progress">En Progreso</option><option value="done">Completado</option></select></div>
+  <div class="mf"><button type="button" onclick="closeModal('projModal')" class="bg">Cancelar</button><button type="button" onclick="saveProject()" class="bw">Crear</button></div>
+</div></div>
+
+<script>
+const STATUS = { todo: 'Por Hacer', in_progress: 'En Progreso', done: 'Completado' };
+const ORDER = ['todo', 'in_progress', 'done'];
+const ROLES = { admin: 'Administrador', editor: 'Editor', lectura: 'Lectura' };
+const TABS = [['dashboard', '📊', 'Dashboard'], ['finances', '💰', 'Finanzas & Caja'], ['projects', '📋', 'Proyectos & Kanban'], ['members', '👥', 'Equipo & Roles'], ['audit', '🕘', 'Auditoría']];
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const money = n => '$' + Number(n || 0).toFixed(2);
+const today = () => new Date().toISOString().slice(0, 10);
+
+if (SUPABASE_URL.startsWith('PEGA')) {
+  document.body.innerHTML = '<div class="p-8 text-sm text-amber-400">Falta configurar SUPABASE_URL y SUPABASE_ANON_KEY al inicio de index.html.</div>';
+  throw new Error('Supabase sin configurar');
+}
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const S = { projects: [], finances: [], profiles: [], audit_log: [] };
+let me = null, chart = null, currentTab = 'dashboard', started = null, signup = false;
+
+/* ---------- Autenticación ---------- */
+function toggleAuth() {
+  signup = !signup;
+  $('name-wrap').classList.toggle('hidden', !signup);
+  $('auth-btn').textContent = signup ? 'Crear cuenta' : 'Entrar';
+  $('auth-sub').textContent = signup ? 'Crea tu cuenta de equipo' : 'Inicia sesión para continuar';
+  $('auth-toggle').textContent = signup ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate';
+  $('auth-msg').textContent = '';
+}
+async function doAuth(e) {
+  e.preventDefault();
+  const email = $('a-email').value.trim(), password = $('a-pass').value, msg = $('auth-msg');
+  msg.className = 'text-xs text-rose-400 min-h-[1rem]'; msg.textContent = '';
+  const { data, error } = signup
+    ? await sb.auth.signUp({ email, password, options: { data: { full_name: $('a-name').value.trim() } } })
+    : await sb.auth.signInWithPassword({ email, password });
+  if (error) { msg.textContent = error.message; return false; }
+  if (signup && !data.session) { msg.className = 'text-xs text-emerald-400 min-h-[1rem]'; msg.textContent = 'Revisa tu correo para confirmar la cuenta.'; }
+  return false;
+}
+sb.auth.onAuthStateChange((_ev, session) => {
+  setTimeout(() => session ? start(session.user) : stop(), 0); // evita bloqueos dentro del callback
+});
+
+async function start(user) {
+  if (started === user.id) return;
+  started = user.id;
+  let prof = null;
+  for (let i = 0; i < 5 && !prof; i++) {
+    ({ data: prof } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle());
+    if (!prof) await new Promise(r => setTimeout(r, 400));
+  }
+  if (!prof) { $('auth-msg').textContent = 'No se encontró tu perfil. ¿Ejecutaste schema.sql?'; started = null; return; }
+  me = prof;
+  document.body.classList.toggle('r-edit', ['admin', 'editor'].includes(me.role));
+  document.body.classList.toggle('r-admin', me.role === 'admin');
+  $('who').textContent = `${me.full_name || me.email} · ${ROLES[me.role]}`;
+  $('auth').classList.add('hidden'); $('app').classList.remove('hidden');
+  renderNav();
+  await Promise.all(Object.keys(S).map(load));
+  const ch = sb.channel('nexus');
+  Object.keys(S).forEach(t => ch.on('postgres_changes', { event: '*', schema: 'public', table: t }, () => load(t)));
+  ch.subscribe();
+  window._ch = ch;
+}
+function stop() {
+  started = null; me = null;
+  if (window._ch) { sb.removeChannel(window._ch); window._ch = null; }
+  document.body.classList.remove('r-edit', 'r-admin');
+  $('app').classList.add('hidden'); $('auth').classList.remove('hidden');
+}
+
+/* ---------- Datos ---------- */
+const ORDERBY = {
+  projects: q => q.order('created_at'),
+  finances: q => q.order('date', { ascending: false }),
+  profiles: q => q.order('created_at'),
+  audit_log: q => q.order('created_at', { ascending: false }).limit(100)
+};
+async function load(t) {
+  const { data, error } = await ORDERBY[t](sb.from(t).select('*'));
+  if (error) return console.error(t, error);
+  S[t] = data;
+  if (t === 'profiles') { const m = data.find(p => p.id === me?.id); if (m && m.role !== me.role) start2(m); }
+  renderAll();
+}
+function start2(m) { // si un admin cambia tu rol, la interfaz se actualiza al instante
+  me = m;
+  document.body.classList.toggle('r-edit', ['admin', 'editor'].includes(m.role));
+  document.body.classList.toggle('r-admin', m.role === 'admin');
+  $('who').textContent = `${m.full_name || m.email} · ${ROLES[m.role]}`;
+}
+async function q(promise) {
+  const { error } = await promise;
+  if (error) alert('No se pudo completar: ' + error.message + '\n(Puede que tu rol no tenga permiso.)');
+  return !error;
+}
+
+/* ---------- Navegación y modales ---------- */
+function renderNav() {
+  $('nav').innerHTML = TABS.map(([id, ic, lb]) =>
+    `<button type="button" onclick="switchTab('${id}')" class="w-full text-left px-3.5 py-2.5 rounded-lg text-xs font-medium flex items-center gap-3 ${id === currentTab ? 'bg-white text-black' : 'text-neutral-400 hover:bg-neutral-900 hover:text-white'}"><span>${ic}</span> ${lb}</button>`).join('');
+}
+function switchTab(t) {
+  currentTab = t;
+  document.querySelectorAll('.tab').forEach(e => e.classList.add('hidden'));
+  $('tab-' + t).classList.remove('hidden');
+  renderNav();
+  if (t === 'dashboard') renderChart();
+}
+const openModal = id => $(id).classList.add('open');
+const closeModal = id => $(id).classList.remove('open');
+function openFin() {
+  $('fin-concept').value = ''; $('fin-amount').value = ''; $('fin-type').value = 'income'; $('fin-date').value = today();
+  $('fin-project').innerHTML = '<option value="">-- Ninguno (Fondo General) --</option>' + S.projects.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+  openModal('finModal');
+}
+function openProj() {
+  $('proj-name').value = ''; $('proj-budget').value = ''; $('proj-category').selectedIndex = 0; $('proj-status').value = 'todo';
+  openModal('projModal');
+}
+
+/* ---------- Acciones ---------- */
+async function saveFinance() {
+  const concept = $('fin-concept').value.trim(), raw = $('fin-amount').value, amount = Number(raw);
+  if (!concept || raw === '' || isNaN(amount) || amount < 0) return alert('Ingresa un concepto y un monto válido.');
+  if (await q(sb.from('finances').insert({ concept, project_id: $('fin-project').value || null, type: $('fin-type').value, amount, date: $('fin-date').value || today() }))) closeModal('finModal');
+}
+async function saveProject() {
+  const name = $('proj-name').value.trim();
+  if (!name) return alert('Ingresa un nombre para el proyecto.');
+  if (await q(sb.from('projects').insert({ name, category: $('proj-category').value, budget: Number($('proj-budget').value || 0), status: $('proj-status').value }))) closeModal('projModal');
+}
+async function deleteFinance(id) { if (confirm('¿Eliminar esta transacción?')) await q(sb.from('finances').delete().eq('id', id)); }
+async function deleteProject(id) { if (confirm('¿Eliminar este proyecto?')) await q(sb.from('projects').delete().eq('id', id)); }
+async function moveProject(id, dir) {
+  const p = S.projects.find(x => x.id === id); if (!p) return;
+  const i = ORDER.indexOf(p.status) + dir;
+  if (i >= 0 && i < 3) await q(sb.from('projects').update({ status: ORDER[i] }).eq('id', id));
+}
+async function setRole(id, role) {
+  if (!confirm(`¿Cambiar el rol a ${ROLES[role]}?`)) return renderMembers();
+  await q(sb.from('profiles').update({ role }).eq('id', id));
+  renderMembers();
+}
+
+/* ---------- Render ---------- */
+function renderFinances() {
+  let inc = 0, exp = 0;
+  const rows = S.finances.map(f => {
+    const isInc = f.type === 'income';
+    isInc ? inc += Number(f.amount) : exp += Number(f.amount);
+    const pr = S.projects.find(p => p.id === f.project_id);
+    return `<tr class="hover:bg-neutral-900/40"><td class="p-3 text-neutral-500">${esc(f.date)}</td><td class="p-3 font-medium text-white">${esc(f.concept)}</td>
+      <td class="p-3 text-neutral-400 text-[11px]">${esc(pr ? pr.name : 'Fondo General')}</td>
+      <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] border ${isInc ? 'border-emerald-800 text-emerald-400' : 'border-rose-800 text-rose-400'}">${isInc ? 'Ingreso' : 'Egreso'}</span></td>
+      <td class="p-3 font-semibold ${isInc ? 'text-emerald-400' : 'text-rose-400'}">${money(f.amount)}</td>
+      <td class="p-3 text-right ad"><button type="button" onclick="deleteFinance('${esc(f.id)}')" class="text-neutral-600 hover:text-rose-400">🗑</button></td></tr>`;
+  });
+  $('fin-body').innerHTML = rows.join('') || '<tr><td colspan="6" class="p-6 text-center text-neutral-600">Sin movimientos registrados.</td></tr>';
+  $('kpi-income').textContent = money(inc); $('kpi-expense').textContent = money(exp); $('kpi-balance').textContent = money(inc - exp);
+}
+function renderProjects() {
+  const cols = { todo: '', in_progress: '', done: '' }, n = { todo: 0, in_progress: 0, done: 0 };
+  S.projects.forEach(p => {
+    const st = p.status in cols ? p.status : 'todo'; n[st]++;
+    const spent = S.finances.filter(f => f.project_id === p.id && f.type === 'expense').reduce((s, f) => s + Number(f.amount), 0);
+    const i = ORDER.indexOf(st), over = Number(p.budget) > 0 && spent > Number(p.budget);
+    cols[st] += `<div class="bg-neutral-900/60 border border-neutral-800 p-3 rounded-lg space-y-2">
+      <div class="flex justify-between items-start"><h4 class="font-medium text-xs text-white">${esc(p.name)}</h4><button type="button" onclick="deleteProject('${esc(p.id)}')" class="ad text-neutral-600 hover:text-rose-400 text-[10px]">✕</button></div>
+      <div class="flex justify-between items-center text-[10px] text-neutral-400"><span class="bg-neutral-800 px-1.5 py-0.5 rounded">${esc(p.category)}</span><span class="font-mono ${over ? 'text-rose-400' : ''}">${money(spent)} / ${money(p.budget)}</span></div>
+      <div class="ed pt-2 border-t border-neutral-800 flex justify-between text-[10px]">
+        ${i > 0 ? `<button type="button" onclick="moveProject('${esc(p.id)}',-1)" class="text-neutral-500 hover:text-white">‹ ${STATUS[ORDER[i - 1]]}</button>` : '<span></span>'}
+        ${i < 2 ? `<button type="button" onclick="moveProject('${esc(p.id)}',1)" class="text-neutral-400 hover:text-white font-medium">${STATUS[ORDER[i + 1]]} ›</button>` : ''}</div></div>`;
+  });
+  ORDER.forEach(s => { $('col-' + s).innerHTML = cols[s]; $('count-' + s).textContent = n[s]; });
+}
+function renderMembers() {
+  const isAdmin = me && me.role === 'admin';
+  $('members-grid').innerHTML = S.profiles.map(m => `<div class="card p-4 flex justify-between items-center gap-3">
+    <div class="space-y-1 min-w-0"><h4 class="font-semibold text-xs text-white">${esc(m.full_name || m.email)}${m.id === me?.id ? ' <span class="text-neutral-500">(tú)</span>' : ''}</h4><p class="text-[11px] text-neutral-500 truncate">✉ ${esc(m.email)}</p></div>
+    ${isAdmin && m.id !== me.id
+      ? `<select onchange="setRole('${esc(m.id)}',this.value)" class="inp" style="width:auto">${Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${m.role === k ? 'selected' : ''}>${v}</option>`).join('')}</select>`
+      : `<span class="text-[10px] bg-neutral-900 text-neutral-300 border border-neutral-800 px-2 py-0.5 rounded-full">${ROLES[m.role] || esc(m.role)}</span>`}
+  </div>`).join('');
+}
+function renderAudit() {
+  $('audit-list').innerHTML = S.audit_log.map(a => `<li class="pt-2 flex justify-between items-center gap-3"><div><span class="text-white font-medium">${esc(a.action)}</span><span class="text-[10px] text-neutral-600 block">Por ${esc(a.user_name || 'Sistema')}</span></div><span class="text-[10px] font-mono text-neutral-500 whitespace-nowrap">${new Date(a.created_at).toLocaleString()}</span></li>`).join('') || '<li class="text-neutral-600">Sin actividad todavía.</li>';
+}
+function renderChart() {
+  if (typeof Chart === 'undefined') return;
+  const by = {};
+  S.finances.forEach(f => { const m = String(f.date).slice(0, 7); by[m] = by[m] || { income: 0, expense: 0 }; by[m][f.type] += Number(f.amount); });
+  const labels = Object.keys(by).sort(), ax = { grid: { color: '#171717' }, ticks: { color: '#737373' } };
+  if (chart) chart.destroy();
+  chart = new Chart($('chart').getContext('2d'), { type: 'bar',
+    data: { labels, datasets: [{ label: 'Ingresos', data: labels.map(l => by[l].income), backgroundColor: '#10b981', borderRadius: 6 }, { label: 'Egresos', data: labels.map(l => by[l].expense), backgroundColor: '#f43f5e', borderRadius: 6 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#a3a3a3' } } }, scales: { x: ax, y: ax } } });
+}
+function renderAll() {
+  if (!me) return;
+  renderFinances(); renderProjects(); renderMembers(); renderAudit();
+  if (currentTab === 'dashboard') renderChart();
+}
+function exportData() {
+  const blob = new Blob([JSON.stringify({ projects: S.projects, finances: S.finances, profiles: S.profiles }, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `nexus_backup_${today()}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+}
+</script>
+</body>
+</html>
