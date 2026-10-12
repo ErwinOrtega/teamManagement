@@ -24,6 +24,13 @@ body{background:#000}
 .mf{display:flex;justify-content:flex-end;gap:.5rem;padding-top:.75rem;border-top:1px solid #171717}
 body:not(.r-edit) .ed{display:none!important}
 body:not(.r-admin) .ad{display:none!important}
+.toast{position:fixed;bottom:1rem;right:1rem;z-index:80;display:grid;gap:.5rem}
+.toast div{background:#fff;color:#000;padding:.6rem .9rem;border-radius:.5rem;font-size:.75rem;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.toast .err{background:#f43f5e;color:#fff}
+.bar{height:6px;background:#262626;border-radius:9999px;overflow:hidden}
+.bar>i{display:block;height:100%;background:#10b981}
+.bar.over>i{background:#f43f5e}
+.tag{font-size:10px;padding:1px 6px;border-radius:9999px;border:1px solid #262626}
 </style>
 </head>
 <body class="text-neutral-100 min-h-screen font-sans">
@@ -63,29 +70,45 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 </header>
 
 <main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
-  <aside><nav id="nav" class="card p-2 space-y-1"></nav></aside>
+  <aside><nav id="nav" class="card p-2 flex lg:block gap-1 lg:space-y-1 overflow-x-auto"></nav></aside>
   <section class="lg:col-span-3 space-y-6">
 
     <div id="tab-dashboard" class="tab space-y-6">
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="card p-4"><span class="text-[11px] text-neutral-500 uppercase font-semibold">Balance</span><div id="kpi-balance" class="text-2xl font-semibold mt-1">$0.00</div></div>
-        <div class="card p-4"><span class="text-[11px] text-neutral-500 uppercase font-semibold">Ingresos</span><div id="kpi-income" class="text-2xl font-semibold text-emerald-400 mt-1">$0.00</div></div>
-        <div class="card p-4"><span class="text-[11px] text-neutral-500 uppercase font-semibold">Egresos</span><div id="kpi-expense" class="text-2xl font-semibold text-rose-400 mt-1">$0.00</div></div>
+      <div><h2 id="greet" class="text-lg font-semibold">Resumen</h2><p class="text-xs text-neutral-500">Estado general del equipo en tiempo real.</p></div>
+      <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="card p-4"><span class="text-[11px] text-neutral-500 uppercase font-semibold">Balance</span><div id="kpi-balance" class="text-xl font-semibold mt-1">0</div><p id="kpi-balance-sub" class="text-[11px] text-neutral-500 mt-1"></p></div>
+        <div class="card p-4"><span class="text-[11px] text-neutral-500 uppercase font-semibold">Ingresos</span><div id="kpi-income" class="text-xl font-semibold text-emerald-400 mt-1">0</div><p id="kpi-income-sub" class="text-[11px] text-neutral-500 mt-1"></p></div>
+        <div class="card p-4"><span class="text-[11px] text-neutral-500 uppercase font-semibold">Egresos</span><div id="kpi-expense" class="text-xl font-semibold text-rose-400 mt-1">0</div><p id="kpi-expense-sub" class="text-[11px] text-neutral-500 mt-1"></p></div>
+        <div class="card p-4"><span class="text-[11px] text-neutral-500 uppercase font-semibold">Proyectos</span><div id="kpi-projects" class="text-xl font-semibold mt-1">0</div><p id="kpi-projects-sub" class="text-[11px] text-neutral-500 mt-1"></p></div>
       </div>
-      <div class="card p-4 space-y-3"><h3 class="text-xs text-neutral-400 uppercase">Flujo de caja por mes</h3><div class="h-64"><canvas id="chart"></canvas></div></div>
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+        <div class="card p-4 xl:col-span-2 space-y-3"><h3 class="text-xs text-neutral-400 uppercase">Flujo de caja por mes</h3><div class="h-64"><canvas id="chart"></canvas></div></div>
+        <div class="card p-4 space-y-3"><h3 class="text-xs text-neutral-400 uppercase">Gastos por categoría</h3><div class="h-64"><canvas id="chart2"></canvas></div></div>
+      </div>
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <div class="card p-4 space-y-3"><h3 class="text-xs text-neutral-400 uppercase">Alertas</h3><ul id="alerts" class="space-y-2 text-xs"></ul></div>
+        <div class="card p-4 space-y-3"><h3 class="text-xs text-neutral-400 uppercase">Actividad reciente</h3><ul id="recent" class="space-y-2 text-xs"></ul></div>
+      </div>
     </div>
 
     <div id="tab-finances" class="tab hidden space-y-6">
       <div class="flex justify-between items-center"><div><h2 class="text-base font-semibold">Movimientos</h2><p class="text-xs text-neutral-500">Ingresos y gastos.</p></div>
         <button type="button" onclick="openFin()" class="bw ed">+ Registrar</button></div>
+      <div class="flex flex-wrap gap-2 items-center">
+        <input id="fin-search" oninput="renderFinances()" placeholder="Buscar concepto, categoría o proyecto…" class="inp" style="max-width:20rem">
+        <select id="fin-filter" onchange="renderFinances()" class="inp" style="width:auto"><option value="">Todos</option><option value="income">Ingresos</option><option value="expense">Egresos</option></select>
+        <button type="button" onclick="exportCSV()" class="bg">⬇ CSV</button>
+        <span id="fin-total" class="text-xs text-neutral-500 ml-auto"></span>
+      </div>
       <div class="card overflow-x-auto"><table class="w-full text-left text-xs text-neutral-300">
-        <thead class="bg-neutral-900/50 text-neutral-500 uppercase"><tr><th class="p-3">Fecha</th><th class="p-3">Concepto</th><th class="p-3">Proyecto</th><th class="p-3">Tipo</th><th class="p-3">Monto</th><th class="p-3"></th></tr></thead>
+        <thead class="bg-neutral-900/50 text-neutral-500 uppercase"><tr><th class="p-3">Fecha</th><th class="p-3">Concepto</th><th class="p-3">Categoría</th><th class="p-3">Proyecto</th><th class="p-3">Tipo</th><th class="p-3">Monto</th><th class="p-3"></th></tr></thead>
         <tbody id="fin-body" class="divide-y divide-neutral-900"></tbody></table></div>
     </div>
 
     <div id="tab-projects" class="tab hidden space-y-6">
       <div class="flex justify-between items-center"><div><h2 class="text-base font-semibold">Proyectos</h2><p class="text-xs text-neutral-500">Presupuesto asignado vs. ejecutado.</p></div>
         <button type="button" onclick="openProj()" class="bw ed">+ Nuevo Proyecto</button></div>
+      <input id="proj-search" oninput="renderProjects()" placeholder="Buscar proyecto…" class="inp" style="max-width:20rem">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="card p-3 space-y-3"><div class="text-[11px] font-semibold text-neutral-400 uppercase flex justify-between border-b border-neutral-900 pb-2"><span>Por Hacer</span><span id="count-todo">0</span></div><div id="col-todo" class="space-y-3 min-h-[200px]"></div></div>
         <div class="card p-3 space-y-3"><div class="text-[11px] font-semibold text-neutral-300 uppercase flex justify-between border-b border-neutral-900 pb-2"><span>En Progreso</span><span id="count-in_progress">0</span></div><div id="col-in_progress" class="space-y-3 min-h-[200px]"></div></div>
@@ -108,27 +131,39 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 <!-- MODALES -->
 <div id="finModal" class="modal"><div>
-  <h3 class="font-semibold uppercase">Registrar Transacción</h3>
+  <input type="hidden" id="fin-id">
+  <h3 id="fin-title" class="font-semibold uppercase">Registrar Transacción</h3>
   <div><label class="lbl">Concepto</label><input id="fin-concept" class="inp"></div>
-  <div><label class="lbl">Proyecto (opcional)</label><select id="fin-project" class="inp"></select></div>
+  <div class="grid grid-cols-2 gap-3">
+    <div><label class="lbl">Proyecto (opcional)</label><select id="fin-project" class="inp"></select></div>
+    <div><label class="lbl">Categoría</label><select id="fin-cat" class="inp"><option>Materiales</option><option>Equipos</option><option>Servicios</option><option>Honorarios</option><option>Transporte</option><option>Financiación</option><option selected>Otros</option></select></div>
+  </div>
   <div class="grid grid-cols-2 gap-3">
     <div><label class="lbl">Tipo</label><select id="fin-type" class="inp"><option value="income">Ingreso (+)</option><option value="expense">Egreso (-)</option></select></div>
-    <div><label class="lbl">Monto ($)</label><input type="number" step="0.01" min="0" id="fin-amount" class="inp"></div>
+    <div><label class="lbl">Monto</label><input type="number" step="0.01" min="0" id="fin-amount" class="inp"></div>
   </div>
   <div><label class="lbl">Fecha</label><input type="date" id="fin-date" class="inp"></div>
   <div class="mf"><button type="button" onclick="closeModal('finModal')" class="bg">Cancelar</button><button type="button" onclick="saveFinance()" class="bw">Guardar</button></div>
 </div></div>
 
 <div id="projModal" class="modal"><div>
-  <h3 class="font-semibold uppercase">Nuevo Proyecto</h3>
+  <input type="hidden" id="proj-id">
+  <h3 id="proj-title" class="font-semibold uppercase">Nuevo Proyecto</h3>
   <div><label class="lbl">Nombre</label><input id="proj-name" class="inp"></div>
+  <div><label class="lbl">Descripción</label><textarea id="proj-desc" rows="3" class="inp"></textarea></div>
   <div class="grid grid-cols-2 gap-3">
     <div><label class="lbl">Categoría</label><select id="proj-category" class="inp"><option>Académico</option><option value="Comercial">Comercial / Empresa</option><option>Investigación</option></select></div>
-    <div><label class="lbl">Presupuesto ($)</label><input type="number" step="0.01" min="0" id="proj-budget" class="inp"></div>
+    <div><label class="lbl">Presupuesto</label><input type="number" step="0.01" min="0" id="proj-budget" class="inp"></div>
   </div>
-  <div><label class="lbl">Estado inicial</label><select id="proj-status" class="inp"><option value="todo">Por Hacer</option><option value="in_progress">En Progreso</option><option value="done">Completado</option></select></div>
-  <div class="mf"><button type="button" onclick="closeModal('projModal')" class="bg">Cancelar</button><button type="button" onclick="saveProject()" class="bw">Crear</button></div>
+  <div class="grid grid-cols-2 gap-3">
+    <div><label class="lbl">Estado</label><select id="proj-status" class="inp"><option value="todo">Por Hacer</option><option value="in_progress">En Progreso</option><option value="done">Completado</option></select></div>
+    <div><label class="lbl">Prioridad</label><select id="proj-prio" class="inp"><option value="alta">Alta</option><option value="media" selected>Media</option><option value="baja">Baja</option></select></div>
+  </div>
+  <div><label class="lbl">Fecha límite (opcional)</label><input type="date" id="proj-due" class="inp"></div>
+  <div class="mf"><button type="button" onclick="closeModal('projModal')" class="bg">Cancelar</button><button type="button" onclick="saveProject()" class="bw">Guardar</button></div>
 </div></div>
+
+<div id="toast" class="toast"></div>
 
 <div id="profModal" class="modal"><div>
   <h3 class="font-semibold uppercase">Mi perfil</h3>
@@ -144,7 +179,9 @@ const ROLES = { admin: 'Administrador', editor: 'Editor', lectura: 'Lectura' };
 const TABS = [['dashboard', '📊', 'Dashboard'], ['finances', '💰', 'Finanzas & Caja'], ['projects', '📋', 'Proyectos & Kanban'], ['members', '👥', 'Equipo & Roles'], ['audit', '🕘', 'Auditoría']];
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const money = n => '$' + Number(n || 0).toFixed(2);
+const MONEDA = 'COP'; // cambia a 'USD', 'EUR', etc.
+const fmt = new Intl.NumberFormat('es-CO', { style: 'currency', currency: MONEDA, maximumFractionDigits: MONEDA === 'COP' ? 0 : 2 });
+const money = n => fmt.format(Number(n || 0));
 const today = () => new Date().toISOString().slice(0, 10);
 
 if (SUPABASE_URL.startsWith('PEGA')) {
@@ -227,16 +264,25 @@ function start2(m) { // si un admin cambia tu rol, la interfaz se actualiza al i
   document.body.classList.toggle('r-admin', m.role === 'admin');
   $('who').textContent = `${m.full_name || m.email} · ${ROLES[m.role]}`;
 }
-async function q(promise) {
+function toast(msg, err) {
+  const d = document.createElement('div'); d.textContent = msg; if (err) d.className = 'err';
+  $('toast').appendChild(d); setTimeout(() => d.remove(), 3500);
+}
+async function q(promise, ok) {
   const { error } = await promise;
-  if (error) alert('No se pudo completar: ' + error.message + '\n(Puede que tu rol no tenga permiso.)');
+  if (error) toast('No se pudo completar: ' + error.message, true); else if (ok) toast(ok);
   return !error;
 }
+const projName = id => (S.projects.find(p => p.id === id) || {}).name || 'Fondo General';
+const PRIO = { alta: 'border-rose-800 text-rose-400', media: 'border-amber-800 text-amber-400', baja: 'border-neutral-700 text-neutral-400' };
+const PAL = ['#10b981', '#38bdf8', '#a78bfa', '#f59e0b', '#f43f5e', '#14b8a6', '#94a3b8'];
+let chart2 = null;
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal.open').forEach(m => m.classList.remove('open')); });
 
 /* ---------- Navegación y modales ---------- */
 function renderNav() {
   $('nav').innerHTML = TABS.map(([id, ic, lb]) =>
-    `<button type="button" onclick="switchTab('${id}')" class="w-full text-left px-3.5 py-2.5 rounded-lg text-xs font-medium flex items-center gap-3 ${id === currentTab ? 'bg-white text-black' : 'text-neutral-400 hover:bg-neutral-900 hover:text-white'}"><span>${ic}</span> ${lb}</button>`).join('');
+    `<button type="button" onclick="switchTab('${id}')" class="lg:w-full whitespace-nowrap text-left px-3.5 py-2.5 rounded-lg text-xs font-medium flex items-center gap-3 ${id === currentTab ? 'bg-white text-black' : 'text-neutral-400 hover:bg-neutral-900 hover:text-white'}"><span>${ic}</span> ${lb}</button>`).join('');
 }
 function switchTab(t) {
   currentTab = t;
@@ -247,26 +293,39 @@ function switchTab(t) {
 }
 const openModal = id => $(id).classList.add('open');
 const closeModal = id => $(id).classList.remove('open');
-function openFin() {
-  $('fin-concept').value = ''; $('fin-amount').value = ''; $('fin-type').value = 'income'; $('fin-date').value = today();
+function openFin(id) {
+  const f = S.finances.find(x => x.id === id) || {};
+  $('fin-id').value = f.id || ''; $('fin-title').textContent = f.id ? 'Editar Transacción' : 'Registrar Transacción';
+  $('fin-concept').value = f.concept || ''; $('fin-amount').value = f.amount ?? ''; $('fin-type').value = f.type || 'income';
+  $('fin-date').value = f.date || today(); $('fin-cat').value = f.category || 'Otros';
   $('fin-project').innerHTML = '<option value="">-- Ninguno (Fondo General) --</option>' + S.projects.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+  $('fin-project').value = f.project_id || '';
   openModal('finModal');
 }
-function openProj() {
-  $('proj-name').value = ''; $('proj-budget').value = ''; $('proj-category').selectedIndex = 0; $('proj-status').value = 'todo';
+function openProj(id) {
+  const p = S.projects.find(x => x.id === id) || {};
+  $('proj-id').value = p.id || ''; $('proj-title').textContent = p.id ? 'Editar Proyecto' : 'Nuevo Proyecto';
+  $('proj-name').value = p.name || ''; $('proj-desc').value = p.description || ''; $('proj-budget').value = p.budget ?? '';
+  $('proj-category').value = p.category || 'Académico'; $('proj-status').value = p.status || 'todo';
+  $('proj-prio').value = p.priority || 'media'; $('proj-due').value = p.due_date || '';
   openModal('projModal');
 }
 
 /* ---------- Acciones ---------- */
 async function saveFinance() {
-  const concept = $('fin-concept').value.trim(), raw = $('fin-amount').value, amount = Number(raw);
-  if (!concept || raw === '' || isNaN(amount) || amount < 0) return alert('Ingresa un concepto y un monto válido.');
-  if (await q(sb.from('finances').insert({ concept, project_id: $('fin-project').value || null, type: $('fin-type').value, amount, date: $('fin-date').value || today() }))) closeModal('finModal');
+  const id = $('fin-id').value, concept = $('fin-concept').value.trim(), raw = $('fin-amount').value, amount = Number(raw);
+  if (!concept || raw === '' || isNaN(amount) || amount < 0) return toast('Ingresa un concepto y un monto válido.', true);
+  const row = { concept, project_id: $('fin-project').value || null, type: $('fin-type').value, amount, date: $('fin-date').value || today(), category: $('fin-cat').value };
+  const req = id ? sb.from('finances').update(row).eq('id', id) : sb.from('finances').insert(row);
+  if (await q(req, id ? 'Transacción actualizada' : 'Transacción registrada')) closeModal('finModal');
 }
 async function saveProject() {
-  const name = $('proj-name').value.trim();
-  if (!name) return alert('Ingresa un nombre para el proyecto.');
-  if (await q(sb.from('projects').insert({ name, category: $('proj-category').value, budget: Number($('proj-budget').value || 0), status: $('proj-status').value }))) closeModal('projModal');
+  const id = $('proj-id').value, name = $('proj-name').value.trim();
+  if (!name) return toast('Ingresa un nombre para el proyecto.', true);
+  const row = { name, category: $('proj-category').value, budget: Number($('proj-budget').value || 0), status: $('proj-status').value,
+    priority: $('proj-prio').value, due_date: $('proj-due').value || null, description: $('proj-desc').value.trim() || null };
+  const req = id ? sb.from('projects').update(row).eq('id', id) : sb.from('projects').insert(row);
+  if (await q(req, id ? 'Proyecto actualizado' : 'Proyecto creado')) closeModal('projModal');
 }
 async function deleteFinance(id) { if (confirm('¿Eliminar esta transacción?')) await q(sb.from('finances').delete().eq('id', id)); }
 async function deleteProject(id) { if (confirm('¿Eliminar este proyecto?')) await q(sb.from('projects').delete().eq('id', id)); }
@@ -302,34 +361,39 @@ async function renameMember(id) {
 
 /* ---------- Render ---------- */
 function renderFinances() {
-  let inc = 0, exp = 0;
-  const rows = S.finances.map(f => {
-    const isInc = f.type === 'income';
-    isInc ? inc += Number(f.amount) : exp += Number(f.amount);
-    const pr = S.projects.find(p => p.id === f.project_id);
-    return `<tr class="hover:bg-neutral-900/40"><td class="p-3 text-neutral-500">${esc(f.date)}</td><td class="p-3 font-medium text-white">${esc(f.concept)}</td>
-      <td class="p-3 text-neutral-400 text-[11px]">${esc(pr ? pr.name : 'Fondo General')}</td>
-      <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] border ${isInc ? 'border-emerald-800 text-emerald-400' : 'border-rose-800 text-rose-400'}">${isInc ? 'Ingreso' : 'Egreso'}</span></td>
-      <td class="p-3 font-semibold ${isInc ? 'text-emerald-400' : 'text-rose-400'}">${money(f.amount)}</td>
-      <td class="p-3 text-right ad"><button type="button" onclick="deleteFinance('${esc(f.id)}')" class="text-neutral-600 hover:text-rose-400">🗑</button></td></tr>`;
+  const t = ($('fin-search')?.value || '').toLowerCase(), ty = $('fin-filter')?.value || '';
+  const list = S.finances.filter(f => (!ty || f.type === ty) && (!t || [f.concept, f.category, projName(f.project_id)].join(' ').toLowerCase().includes(t)));
+  let net = 0;
+  const rows = list.map(f => {
+    const isInc = f.type === 'income'; net += isInc ? Number(f.amount) : -Number(f.amount);
+    return `<tr class="hover:bg-neutral-900/40"><td class="p-3 text-neutral-500 whitespace-nowrap">${esc(f.date)}</td><td class="p-3 font-medium text-white">${esc(f.concept)}</td>
+      <td class="p-3"><span class="tag text-neutral-400">${esc(f.category || 'Otros')}</span></td>
+      <td class="p-3 text-neutral-400 text-[11px]">${esc(projName(f.project_id))}</td>
+      <td class="p-3"><span class="tag ${isInc ? 'border-emerald-800 text-emerald-400' : 'border-rose-800 text-rose-400'}">${isInc ? 'Ingreso' : 'Egreso'}</span></td>
+      <td class="p-3 font-semibold whitespace-nowrap ${isInc ? 'text-emerald-400' : 'text-rose-400'}">${money(f.amount)}</td>
+      <td class="p-3 text-right whitespace-nowrap"><button type="button" onclick="openFin('${esc(f.id)}')" class="ed text-neutral-500 hover:text-white mr-2">✎</button><button type="button" onclick="deleteFinance('${esc(f.id)}')" class="ad text-neutral-600 hover:text-rose-400">🗑</button></td></tr>`;
   });
-  $('fin-body').innerHTML = rows.join('') || '<tr><td colspan="6" class="p-6 text-center text-neutral-600">Sin movimientos registrados.</td></tr>';
-  $('kpi-income').textContent = money(inc); $('kpi-expense').textContent = money(exp); $('kpi-balance').textContent = money(inc - exp);
+  $('fin-body').innerHTML = rows.join('') || '<tr><td colspan="7" class="p-6 text-center text-neutral-600">Sin movimientos para mostrar.</td></tr>';
+  $('fin-total').textContent = `${list.length} movimientos · neto ${money(net)}`;
 }
 function renderProjects() {
-  const cols = { todo: '', in_progress: '', done: '' }, n = { todo: 0, in_progress: 0, done: 0 };
-  S.projects.forEach(p => {
+  const t = ($('proj-search')?.value || '').toLowerCase(), cols = { todo: '', in_progress: '', done: '' }, n = { todo: 0, in_progress: 0, done: 0 };
+  S.projects.filter(p => !t || [p.name, p.description, p.category].join(' ').toLowerCase().includes(t)).forEach(p => {
     const st = p.status in cols ? p.status : 'todo'; n[st]++;
     const spent = S.finances.filter(f => f.project_id === p.id && f.type === 'expense').reduce((s, f) => s + Number(f.amount), 0);
-    const i = ORDER.indexOf(st), over = Number(p.budget) > 0 && spent > Number(p.budget);
+    const b = Number(p.budget), over = b > 0 && spent > b, pct = b > 0 ? Math.min(100, spent / b * 100) : 0;
+    const late = p.due_date && st !== 'done' && p.due_date < today(), i = ORDER.indexOf(st);
     cols[st] += `<div class="bg-neutral-900/60 border border-neutral-800 p-3 rounded-lg space-y-2">
-      <div class="flex justify-between items-start"><h4 class="font-medium text-xs text-white">${esc(p.name)}</h4><button type="button" onclick="deleteProject('${esc(p.id)}')" class="ad text-neutral-600 hover:text-rose-400 text-[10px]">✕</button></div>
-      <div class="flex justify-between items-center text-[10px] text-neutral-400"><span class="bg-neutral-800 px-1.5 py-0.5 rounded">${esc(p.category)}</span><span class="font-mono ${over ? 'text-rose-400' : ''}">${money(spent)} / ${money(p.budget)}</span></div>
+      <div class="flex justify-between items-start gap-2"><h4 class="font-medium text-xs text-white">${esc(p.name)}</h4>
+        <span class="flex gap-2 text-[11px]"><button type="button" onclick="openProj('${esc(p.id)}')" class="ed text-neutral-500 hover:text-white">✎</button><button type="button" onclick="deleteProject('${esc(p.id)}')" class="ad text-neutral-600 hover:text-rose-400">✕</button></span></div>
+      ${p.description ? `<p class="text-[11px] text-neutral-500 line-clamp-2">${esc(p.description)}</p>` : ''}
+      <div class="flex flex-wrap gap-1.5"><span class="tag text-neutral-400">${esc(p.category)}</span><span class="tag ${PRIO[p.priority] || PRIO.media}">${esc(p.priority || 'media')}</span>${p.due_date ? `<span class="tag ${late ? 'border-rose-800 text-rose-400' : 'text-neutral-400'}">📅 ${esc(p.due_date)}</span>` : ''}</div>
+      <div><div class="flex justify-between text-[10px] text-neutral-400 mb-1"><span>${money(spent)} / ${money(b)}</span><span class="${over ? 'text-rose-400' : ''}">${b > 0 ? Math.round(spent / b * 100) + '%' : '—'}</span></div><div class="bar ${over ? 'over' : ''}"><i style="width:${pct}%"></i></div></div>
       <div class="ed pt-2 border-t border-neutral-800 flex justify-between text-[10px]">
         ${i > 0 ? `<button type="button" onclick="moveProject('${esc(p.id)}',-1)" class="text-neutral-500 hover:text-white">‹ ${STATUS[ORDER[i - 1]]}</button>` : '<span></span>'}
         ${i < 2 ? `<button type="button" onclick="moveProject('${esc(p.id)}',1)" class="text-neutral-400 hover:text-white font-medium">${STATUS[ORDER[i + 1]]} ›</button>` : ''}</div></div>`;
   });
-  ORDER.forEach(s => { $('col-' + s).innerHTML = cols[s]; $('count-' + s).textContent = n[s]; });
+  ORDER.forEach(s => { $('col-' + s).innerHTML = cols[s] || '<p class="text-[11px] text-neutral-600 text-center py-6">Sin proyectos</p>'; $('count-' + s).textContent = n[s]; });
 }
 function renderMembers() {
   const isAdmin = me && me.role === 'admin';
@@ -343,20 +407,57 @@ function renderMembers() {
 function renderAudit() {
   $('audit-list').innerHTML = S.audit_log.map(a => `<li class="pt-2 flex justify-between items-center gap-3"><div><span class="text-white font-medium">${esc(a.action)}</span><span class="text-[10px] text-neutral-600 block">Por ${esc(a.user_name || 'Sistema')}</span></div><span class="text-[10px] font-mono text-neutral-500 whitespace-nowrap">${new Date(a.created_at).toLocaleString()}</span></li>`).join('') || '<li class="text-neutral-600">Sin actividad todavía.</li>';
 }
+function renderDashboard() {
+  let inc = 0, exp = 0, ni = 0, ne = 0;
+  S.finances.forEach(f => { if (f.type === 'income') { inc += Number(f.amount); ni++; } else { exp += Number(f.amount); ne++; } });
+  const bal = inc - exp, act = S.projects.filter(p => p.status === 'in_progress').length, done = S.projects.filter(p => p.status === 'done').length;
+  $('greet').textContent = 'Hola, ' + String(me.full_name || me.email).split(' ')[0] + ' 👋';
+  $('kpi-balance').textContent = money(bal); $('kpi-balance').className = 'text-xl font-semibold mt-1 ' + (bal < 0 ? 'text-rose-400' : '');
+  $('kpi-balance-sub').textContent = inc > 0 ? `Margen ${Math.round(bal / inc * 100)}%` : 'Sin ingresos aún';
+  $('kpi-income').textContent = money(inc); $('kpi-income-sub').textContent = `${ni} movimientos`;
+  $('kpi-expense').textContent = money(exp); $('kpi-expense-sub').textContent = `${ne} movimientos`;
+  $('kpi-projects').textContent = S.projects.length; $('kpi-projects-sub').textContent = `${act} en progreso · ${done} completados`;
+  const al = [];
+  S.projects.forEach(p => {
+    if (p.status === 'done') return;
+    const spent = S.finances.filter(f => f.project_id === p.id && f.type === 'expense').reduce((s, f) => s + Number(f.amount), 0);
+    if (Number(p.budget) > 0 && spent > Number(p.budget)) al.push(['rose', `“${p.name}” superó su presupuesto (${money(spent)} de ${money(p.budget)})`]);
+    if (p.due_date) {
+      const d = Math.ceil((new Date(p.due_date) - new Date(today())) / 864e5);
+      if (d < 0) al.push(['rose', `“${p.name}” está vencido hace ${-d} día(s)`]);
+      else if (d <= 7) al.push(['amber', `“${p.name}” vence en ${d} día(s)`]);
+    }
+  });
+  $('alerts').innerHTML = al.map(([c, m]) => `<li class="flex gap-2 ${c === 'rose' ? 'text-rose-400' : 'text-amber-400'}"><span>●</span><span>${esc(m)}</span></li>`).join('') || '<li class="text-emerald-400">✓ Todo en orden: sin alertas.</li>';
+  $('recent').innerHTML = S.audit_log.slice(0, 6).map(a => `<li class="flex justify-between gap-3"><span class="text-neutral-300">${esc(a.action)} <span class="text-neutral-600">· ${esc(a.user_name || 'Sistema')}</span></span><span class="text-[10px] font-mono text-neutral-600 whitespace-nowrap">${new Date(a.created_at).toLocaleString('es-CO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</span></li>`).join('') || '<li class="text-neutral-600">Sin actividad todavía.</li>';
+}
 function renderChart() {
   if (typeof Chart === 'undefined') return;
-  const by = {};
-  S.finances.forEach(f => { const m = String(f.date).slice(0, 7); by[m] = by[m] || { income: 0, expense: 0 }; by[m][f.type] += Number(f.amount); });
-  const labels = Object.keys(by).sort(), ax = { grid: { color: '#171717' }, ticks: { color: '#737373' } };
-  if (chart) chart.destroy();
+  const by = {}, cat = {};
+  S.finances.forEach(f => {
+    const m = String(f.date).slice(0, 7); by[m] = by[m] || { income: 0, expense: 0 }; by[m][f.type] += Number(f.amount);
+    if (f.type === 'expense') { const c = f.category || 'Otros'; cat[c] = (cat[c] || 0) + Number(f.amount); }
+  });
+  const labels = Object.keys(by).sort(), ck = Object.keys(cat), ax = { grid: { color: '#171717' }, ticks: { color: '#737373' } };
+  [chart, chart2].forEach(c => c && c.destroy());
   chart = new Chart($('chart').getContext('2d'), { type: 'bar',
     data: { labels, datasets: [{ label: 'Ingresos', data: labels.map(l => by[l].income), backgroundColor: '#10b981', borderRadius: 6 }, { label: 'Egresos', data: labels.map(l => by[l].expense), backgroundColor: '#f43f5e', borderRadius: 6 }] },
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#a3a3a3' } } }, scales: { x: ax, y: ax } } });
+  chart2 = new Chart($('chart2').getContext('2d'), { type: 'doughnut',
+    data: { labels: ck, datasets: [{ data: ck.map(k => cat[k]), backgroundColor: PAL, borderColor: '#0a0a0a' }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { color: '#a3a3a3', boxWidth: 10 } } } } });
 }
 function renderAll() {
   if (!me) return;
-  renderFinances(); renderProjects(); renderMembers(); renderAudit();
+  renderFinances(); renderProjects(); renderMembers(); renderAudit(); renderDashboard();
   if (currentTab === 'dashboard') renderChart();
+}
+function exportCSV() {
+  const cell = c => { let s = String(c ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
+  const rows = [['Fecha', 'Concepto', 'Categoría', 'Proyecto', 'Tipo', 'Monto']].concat(S.finances.map(f => [f.date, f.concept, f.category || '', projName(f.project_id), f.type === 'income' ? 'Ingreso' : 'Egreso', f.amount]));
+  const blob = new Blob(['\ufeff' + rows.map(r => r.map(cell).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `movimientos_${today()}.csv`;
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
 }
 function exportData() {
   const blob = new Blob([JSON.stringify({ projects: S.projects, finances: S.finances, profiles: S.profiles }, null, 2)], { type: 'application/json' });
