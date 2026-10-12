@@ -1,4 +1,4 @@
-ojmodal<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -94,7 +94,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
     </div>
 
     <div id="tab-members" class="tab hidden space-y-6">
-      <div><h2 class="text-base font-semibold">Equipo</h2><p class="text-xs text-neutral-500">Quien se registra entra como "Lectura". Un administrador le asigna su rol.</p></div>
+      <div><h2 class="text-base font-semibold">Equipo</h2><p class="text-xs text-neutral-500">Las cuentas nuevas entran como "Lectura". Un administrador les asigna su rol.</p></div>
       <div id="members-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </div>
 
@@ -281,6 +281,25 @@ async function setRole(id, role) {
   renderMembers();
 }
 
+function openProfile() { $('prof-name').value = me.full_name || ''; $('prof-pass').value = ''; openModal('profModal'); }
+async function saveProfile() {
+  const name = $('prof-name').value.trim(), pass = $('prof-pass').value;
+  if (!name) return alert('Escribe tu nombre.');
+  if (pass && pass.length < 6) return alert('La contraseña debe tener al menos 6 caracteres.');
+  if (!(await q(sb.from('profiles').update({ full_name: name }).eq('id', me.id)))) return;
+  if (pass) {
+    const { error } = await sb.auth.updateUser({ password: pass });
+    if (error) return alert('No se pudo cambiar la contraseña: ' + error.message);
+  }
+  me.full_name = name; $('who').textContent = `${name} · ${ROLES[me.role]}`;
+  closeModal('profModal'); alert('Perfil actualizado.');
+}
+async function renameMember(id) {
+  const m = S.profiles.find(x => x.id === id);
+  const n = prompt('Nombre del integrante:', m.full_name || '');
+  if (n && n.trim()) await q(sb.from('profiles').update({ full_name: n.trim() }).eq('id', id));
+}
+
 /* ---------- Render ---------- */
 function renderFinances() {
   let inc = 0, exp = 0;
@@ -315,7 +334,7 @@ function renderProjects() {
 function renderMembers() {
   const isAdmin = me && me.role === 'admin';
   $('members-grid').innerHTML = S.profiles.map(m => `<div class="card p-4 flex justify-between items-center gap-3">
-    <div class="space-y-1 min-w-0"><h4 class="font-semibold text-xs text-white">${esc(m.full_name || m.email)}${m.id === me?.id ? ' <span class="text-neutral-500">(tú)</span>' : ''}</h4><p class="text-[11px] text-neutral-500 truncate">✉ ${esc(m.email)}</p></div>
+    <div class="space-y-1 min-w-0"><h4 class="font-semibold text-xs text-white">${esc(m.full_name || m.email)}${m.id === me?.id ? ' <span class="text-neutral-500">(tú)</span>' : ''}${isAdmin ? `<button type="button" onclick="renameMember('${esc(m.id)}')" class="text-neutral-500 hover:text-white ml-1">✎</button>` : ''}</h4><p class="text-[11px] text-neutral-500 truncate">✉ ${esc(m.email)}</p></div>
     ${isAdmin && m.id !== me.id
       ? `<select onchange="setRole('${esc(m.id)}',this.value)" class="inp" style="width:auto">${Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${m.role === k ? 'selected' : ''}>${v}</option>`).join('')}</select>`
       : `<span class="text-[10px] bg-neutral-900 text-neutral-300 border border-neutral-800 px-2 py-0.5 rounded-full">${ROLES[m.role] || esc(m.role)}</span>`}
@@ -341,7 +360,7 @@ function renderAll() {
 }
 function exportData() {
   const blob = new Blob([JSON.stringify({ projects: S.projects, finances: S.finances, profiles: S.profiles }, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `nexus_backup_${today()}.json`;
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `biomedical_backup_${today()}.json`;
   document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
 }
 </script>
