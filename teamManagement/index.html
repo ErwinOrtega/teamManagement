@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ojmodal<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -129,7 +129,12 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
   <div><label class="lbl">Estado inicial</label><select id="proj-status" class="inp"><option value="todo">Por Hacer</option><option value="in_progress">En Progreso</option><option value="done">Completado</option></select></div>
   <div class="mf"><button type="button" onclick="closeModal('projModal')" class="bg">Cancelar</button><button type="button" onclick="saveProject()" class="bw">Crear</button></div>
 </div></div>
-
+<div id="profModal" class="modal"><div>
+  <h3 class="font-semibold uppercase">Mi perfil</h3>
+  <div><label class="lbl">Nombre</label><input id="prof-name" class="inp"></div>
+  <div><label class="lbl">Nueva contraseña (opcional)</label><input id="prof-pass" type="password" class="inp" placeholder="Déjalo vacío para no cambiarla"></div>
+  <div class="mf"><button type="button" onclick="closeModal('profModal')" class="bg">Cancelar</button><button type="button" onclick="saveProfile()" class="bw">Guardar</button></div>
+</div></div>
 <script>
 const STATUS = { todo: 'Por Hacer', in_progress: 'En Progreso', done: 'Completado' };
 const ORDER = ['todo', 'in_progress', 'done'];
