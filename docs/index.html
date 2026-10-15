@@ -316,8 +316,8 @@ async function start(user) {
   me = prof;
   document.body.classList.toggle('r-edit', ['admin', 'editor'].includes(me.role));
   document.body.classList.toggle('r-admin', me.role === 'admin');
-  $('who').textContent = `${me.full_name || me.email} · ${ROLES[me.role]}`;
-  $('auth').classList.add('hidden');$('app').classList.remove('hidden');
+  $('who').textContent = (me.full_name || me.email) + ' · ' + ROLES[me.role];
+  $('auth').classList.add('hidden'); $('app').classList.remove('hidden');
   renderNav();
   await Promise.all(Object.keys(S).map(load));
   const ch = sb.channel('nexus_live');
@@ -329,7 +329,7 @@ function stop() {
   started = null; me = null;
   if (window._ch) { sb.removeChannel(window._ch); window._ch = null; }
   document.body.classList.remove('r-edit', 'r-admin');
-  $('app').classList.add('hidden');$('auth').classList.remove('hidden');
+  $('app').classList.add('hidden'); $('auth').classList.remove('hidden');
 }
 
 const ORDERBY = {
@@ -351,7 +351,7 @@ function start2(m) {
   me = m;
   document.body.classList.toggle('r-edit', ['admin', 'editor'].includes(m.role));
   document.body.classList.toggle('r-admin', m.role === 'admin');
-  $('who').textContent = `${m.full_name || m.email} · ${ROLES[m.role]}`;
+  $('who').textContent = (m.full_name || m.email) + ' · ' + ROLES[m.role];
 }
 function toast(msg, err) {
   const d = document.createElement('div'); d.textContent = msg; if (err) d.className = 'err';
@@ -370,7 +370,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') document.que
 
 function renderNav() {
   $('nav').innerHTML = TABS.map(([id, ic, lb]) =>
-    `<button type="button" onclick="switchTab('${id}')" title="${lb}" class="nb ${id === currentTab ? 'act' : ''}"><span class="ic">${ic}</span><span class="lt">${lb}</span></button>`).join('');
+    '<button type="button" onclick="switchTab(\'' + id + '\')" title="' + lb + '" class="nb ' + (id === currentTab ? 'act' : '') + '"><span class="ic">' + ic + '</span><span class="lt">' + lb + '</span></button>').join('');
   const t = TABS.find(x => x[0] === currentTab); if (t) $('page-title').textContent = t[2];
 }
 function toggleSide(force) {
@@ -380,7 +380,7 @@ function toggleSide(force) {
     try { localStorage.setItem('side_collapsed', c ? '1' : '0'); } catch (e) {}
   } else {
     const o = force === undefined ? !$('side').classList.contains('open') : force;
-    $('side').classList.toggle('open', o);$('backdrop').classList.toggle('hidden', !o);
+    $('side').classList.toggle('open', o); $('backdrop').classList.toggle('hidden', !o);
   }
 }
 try { if (localStorage.getItem('side_collapsed') === '1') document.body.classList.add('collapsed'); } catch (e) {}
@@ -400,32 +400,34 @@ const closeModal = id => $(id).classList.remove('open');
 
 function openFin(id) {
   const f = S.finances.find(x => x.id === id) || {};
-  $('fin-id').value = f.id \vert{}\vert{} '';$('fin-title').textContent = f.id ? 'Editar Transacción' : 'Registrar Transacción';
-  $('fin-concept').value = f.concept \vert{}\vert{} '';$('fin-amount').value = f.amount ?? ''; $('fin-type').value = f.type \vert{}\vert{} 'income';$('fin-date').value = f.date || today(); $('fin-cat').value = f.category \vert{}\vert{} 'Otros';$('fin-project').innerHTML = '<option value="">-- Ninguno (Fondo General) --</option>' + S.projects.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+  $('fin-id').value = f.id || ''; $('fin-title').textContent = f.id ? 'Editar Transacción' : 'Registrar Transacción';
+  $('fin-concept').value = f.concept || ''; $('fin-amount').value = f.amount ?? ''; $('fin-type').value = f.type || 'income';
+  $('fin-date').value = f.date || today(); $('fin-cat').value = f.category || 'Otros';
+  $('fin-project').innerHTML = '<option value="">-- Ninguno (Fondo General) --</option>' + S.projects.map(p => '<option value="' + esc(p.id) + '">' + esc(p.name) + '</option>').join('');
   $('fin-project').value = f.project_id || '';
   openModal('finModal');
 }
 function openProj(id) {
   const p = S.projects.find(x => x.id === id) || {};
-  $('proj-id').value = p.id \vert{}\vert{} '';$('proj-title').textContent = p.id ? 'Editar Proyecto' : 'Nuevo Proyecto';
-  $('proj-name').value = p.name || ''; $('proj-desc').value = p.description \vert{}\vert{} '';$('proj-budget').value = p.budget ?? '';
-  const cat = p.category || 'Académico'; if (![...$('proj-category').options].some(o => o.value === cat))$('proj-category').add(new Option(cat, cat)); $('proj-category').value = cat; $('proj-status').value = p.status || 'todo';
-  $('proj-prio').value = p.priority \vert{}\vert{} 'media';$('proj-due').value = p.due_date || '';
+  $('proj-id').value = p.id || ''; $('proj-title').textContent = p.id ? 'Editar Proyecto' : 'Nuevo Proyecto';
+  $('proj-name').value = p.name || ''; $('proj-desc').value = p.description || ''; $('proj-budget').value = p.budget ?? '';
+  const cat = p.category || 'Académico'; if (![...$('proj-category').options].some(o => o.value === cat)) $('proj-category').add(new Option(cat, cat)); $('proj-category').value = cat; $('proj-status').value = p.status || 'todo';
+  $('proj-prio').value = p.priority || 'media'; $('proj-due').value = p.due_date || '';
   openModal('projModal');
 }
 
 async function saveFinance() {
-  const id = $('fin-id').value, concept = $('fin-concept').value.trim(), raw =$('fin-amount').value, amount = Number(raw);
+  const id = $('fin-id').value, concept = $('fin-concept').value.trim(), raw = $('fin-amount').value, amount = Number(raw);
   if (!concept || raw === '' || isNaN(amount) || amount < 0) return toast('Indica un concepto y monto válido.', true);
-  const row = { concept, project_id: $('fin-project').value \vert{}\vert{} null, type:$('fin-type').value, amount, date: $('fin-date').value \vert{}\vert{} today(), category:$('fin-cat').value };
+  const row = { concept, project_id: $('fin-project').value || null, type: $('fin-type').value, amount, date: $('fin-date').value || today(), category: $('fin-cat').value };
   const req = id ? sb.from('finances').update(row).eq('id', id) : sb.from('finances').insert(row);
   if (await q(req, id ? 'Transacción actualizada' : 'Transacción registrada')) closeModal('finModal');
 }
 async function saveProject() {
-  const id = $('proj-id').value, name =$('proj-name').value.trim();
+  const id = $('proj-id').value, name = $('proj-name').value.trim();
   if (!name) return toast('Ingresa el nombre del proyecto.', true);
-  const row = { name, category: $('proj-category').value, budget: Number($('proj-budget').value \vert{}\vert{} 0), status:$('proj-status').value,
-    priority: $('proj-prio').value, due_date: $('proj-due').value \vert{}\vert{} null, description:$('proj-desc').value.trim() || null };
+  const row = { name, category: $('proj-category').value, budget: Number($('proj-budget').value || 0), status: $('proj-status').value,
+    priority: $('proj-prio').value, due_date: $('proj-due').value || null, description: $('proj-desc').value.trim() || null };
   const req = id ? sb.from('projects').update(row).eq('id', id) : sb.from('projects').insert(row);
   if (await q(req, id ? 'Proyecto actualizado' : 'Proyecto creado')) closeModal('projModal');
 }
@@ -437,14 +439,14 @@ async function moveProject(id, dir) {
   if (i >= 0 && i < 3) await q(sb.from('projects').update({ status: ORDER[i] }).eq('id', id));
 }
 async function setRole(id, role) {
-  if (!confirm(`¿Cambiar rol a ${ROLES[role]}?`)) return renderMembers();
+  if (!confirm('¿Cambiar rol a ' + ROLES[role] + '?')) return renderMembers();
   await q(sb.from('profiles').update({ role }).eq('id', id));
   renderMembers();
 }
 
-function openProfile() { $('prof-cal').value = me.calendar_id \vert{}\vert{} '';$('prof-cal-share').checked = !!me.calendar_shared; $('prof-name').value = me.full_name \vert{}\vert{} '';$('prof-pass').value = ''; openModal('profModal'); }
+function openProfile() { $('prof-cal').value = me.calendar_id || ''; $('prof-cal-share').checked = !!me.calendar_shared; $('prof-name').value = me.full_name || ''; $('prof-pass').value = ''; openModal('profModal'); }
 async function saveProfile() {
-  const name = $('prof-name').value.trim(), pass =$('prof-pass').value, cal = $('prof-cal').value.trim(), share =$('prof-cal-share').checked;
+  const name = $('prof-name').value.trim(), pass = $('prof-pass').value, cal = $('prof-cal').value.trim(), share = $('prof-cal-share').checked;
   if (cal && !/^[\w.\-+@%]+$/.test(cal)) return alert('ID de calendario inválido.');
   if (!name) return alert('Escribe tu nombre.');
   if (pass && pass.length < 6) return alert('La contraseña debe tener al menos 6 caracteres.');
@@ -453,7 +455,7 @@ async function saveProfile() {
     const { error } = await sb.auth.updateUser({ password: pass });
     if (error) return alert('Error al cambiar contraseña: ' + error.message);
   }
-  me.full_name = name; me.calendar_id = cal || null; me.calendar_shared = share && !!cal; $('who').textContent = `${name} · ${ROLES[me.role]}`;
+  me.full_name = name; me.calendar_id = cal || null; me.calendar_shared = share && !!cal; $('who').textContent = name + ' · ' + ROLES[me.role];
   closeModal('profModal'); toast('Perfil actualizado correctamente');
 }
 async function renameMember(id) {
@@ -463,20 +465,20 @@ async function renameMember(id) {
 }
 
 function renderFinances() {
-  const t = ($('fin-search')?.value \vert{}\vert{} '').toLowerCase(), ty =$('fin-filter')?.value || '';
+  const t = ($('fin-search')?.value || '').toLowerCase(), ty = $('fin-filter')?.value || '';
   const list = S.finances.filter(f => (!ty || f.type === ty) && (!t || [f.concept, f.category, projName(f.project_id)].join(' ').toLowerCase().includes(t)));
   let net = 0;
   const rows = list.map(f => {
     const isInc = f.type === 'income'; net += isInc ? Number(f.amount) : -Number(f.amount);
-    return `<tr class="hover:bg-neutral-900/40 transition-colors"><td class="p-3.5 text-neutral-400 whitespace-nowrap">${esc(f.date)}</td><td class="p-3.5 font-medium text-white">${esc(f.concept)}</td>
-      <td class="p-3.5"><span class="tag">${esc(f.category || 'Otros')}</span></td>
-      <td class="p-3.5 text-neutral-400 text-xs">${esc(projName(f.project_id))}</td>
-      <td class="p-3.5"><span class="tag ${isInc ? 'border-emerald-500/40 text-emerald-400 bg-emerald-500/10' : 'border-rose-500/40 text-rose-400 bg-rose-500/10'}">${isInc ? 'Ingreso' : 'Egreso'}</span></td>
-      <td class="p-3.5 font-bold whitespace-nowrap ${isInc ? 'text-emerald-400' : 'text-rose-400'}">${money(f.amount)}</td>
-      <td class="p-3.5 text-right whitespace-nowrap"><button type="button" onclick="openFin('${esc(f.id)}')" class="ed text-neutral-400 hover:text-white mr-3">✎</button><button type="button" onclick="deleteFinance('${esc(f.id)}')" class="ad text-neutral-500 hover:text-rose-400">🗑</button></td></tr>`;
+    return '<tr class="hover:bg-neutral-900/40 transition-colors"><td class="p-3.5 text-neutral-400 whitespace-nowrap">' + esc(f.date) + '</td><td class="p-3.5 font-medium text-white">' + esc(f.concept) + '</td>' +
+      '<td class="p-3.5"><span class="tag">' + esc(f.category || 'Otros') + '</span></td>' +
+      '<td class="p-3.5 text-neutral-400 text-xs">' + esc(projName(f.project_id)) + '</td>' +
+      '<td class="p-3.5"><span class="tag ' + (isInc ? 'border-emerald-500/40 text-emerald-400 bg-emerald-500/10' : 'border-rose-500/40 text-rose-400 bg-rose-500/10') + '">' + (isInc ? 'Ingreso' : 'Egreso') + '</span></td>' +
+      '<td class="p-3.5 font-bold whitespace-nowrap ' + (isInc ? 'text-emerald-400' : 'text-rose-400') + '">' + money(f.amount) + '</td>' +
+      '<td class="p-3.5 text-right whitespace-nowrap"><button type="button" onclick="openFin(\'' + esc(f.id) + '\')" class="ed text-neutral-400 hover:text-white mr-3">✎</button><button type="button" onclick="deleteFinance(\'' + esc(f.id) + '\')" class="ad text-neutral-500 hover:text-rose-400">🗑</button></td></tr>';
   });
   $('fin-body').innerHTML = rows.join('') || '<tr><td colspan="7" class="p-8 text-center text-neutral-500">No hay transacciones registradas.</td></tr>';
-  $('fin-total').textContent = `${list.length} movimientos · Neto: ${money(net)}`;
+  $('fin-total').textContent = list.length + ' movimientos · Neto: ' + money(net);
 }
 
 function renderProjects() {
@@ -486,55 +488,57 @@ function renderProjects() {
     const spent = S.finances.filter(f => f.project_id === p.id && f.type === 'expense').reduce((s, f) => s + Number(f.amount), 0);
     const b = Number(p.budget), over = b > 0 && spent > b, pct = b > 0 ? Math.min(100, spent / b * 100) : 0;
     const late = p.due_date && st !== 'done' && p.due_date < today(), i = ORDER.indexOf(st);
-    cols[st] += `<div class="bg-neutral-900/60 border border-neutral-800 p-4 rounded-xl space-y-3 shadow-sm hover:border-slate-700 transition-all">
-      <div class="flex justify-between items-start gap-2"><h4 class="font-bold text-xs text-white leading-snug">${esc(p.name)}</h4>
-        <span class="flex gap-2 text-xs"><button type="button" onclick="openProj('${esc(p.id)}')" class="ed text-neutral-400 hover:text-white">✎</button><button type="button" onclick="deleteProject('${esc(p.id)}')" class="ad text-neutral-500 hover:text-rose-400">✕</button></span></div>
-      ${p.description ? `<p class="text-xs text-neutral-400 line-clamp-2">${esc(p.description)}</p>` : ''}
-      <div class="flex flex-wrap gap-1.5"><span class="tag">${esc(p.category)}</span><span class="tag ${PRIO[p.priority] || PRIO.media}">${esc(p.priority || 'media')}</span>${p.due_date ? `<span class="tag ${late ? 'border-rose-500/40 text-rose-400 bg-rose-500/15 font-semibold' : ''}">📅 ${esc(p.due_date)}</span>` : ''}</div>
-      <div class="space-y-1"><div class="flex justify-between text-[11px] text-neutral-400"><span>Ejecutado: ${money(spent)}</span><span class="${over ? 'text-rose-400 font-bold' : ''}">${b > 0 ? 'Presupuesto: ' + money(b) : 'Sin presupuesto'}</span></div><div class="bar ${over ? 'over' : ''}"><i style="width:${pct}%"></i></div></div>
-      <div class="ed pt-2 border-t border-neutral-800/80 flex justify-between text-xs">
-        ${i > 0 ? `<button type="button" onclick="moveProject('${esc(p.id)}',-1)" class="text-neutral-400 hover:text-white flex items-center gap-1">‹ ${STATUS[ORDER[i - 1]]}</button>` : '<span></span>'}
-        ${i < 2 ? `<button type="button" onclick="moveProject('${esc(p.id)}',1)" class="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1">${STATUS[ORDER[i + 1]]} ›</button>` : ''}</div></div>`;
+    cols[st] += '<div class="bg-neutral-900/60 border border-neutral-800 p-4 rounded-xl space-y-3 shadow-sm hover:border-slate-700 transition-all">' +
+      '<div class="flex justify-between items-start gap-2"><h4 class="font-bold text-xs text-white leading-snug">' + esc(p.name) + '</h4>' +
+        '<span class="flex gap-2 text-xs"><button type="button" onclick="openProj(\'' + esc(p.id) + '\')" class="ed text-neutral-400 hover:text-white">✎</button><button type="button" onclick="deleteProject(\'' + esc(p.id) + '\')" class="ad text-neutral-500 hover:text-rose-400">✕</button></span></div>' +
+      (p.description ? '<p class="text-xs text-neutral-400 line-clamp-2">' + esc(p.description) + '</p>' : '') +
+      '<div class="flex flex-wrap gap-1.5"><span class="tag">' + esc(p.category) + '</span><span class="tag ' + (PRIO[p.priority] || PRIO.media) + '">' + esc(p.priority || 'media') + '</span>' + (p.due_date ? '<span class="tag ' + (late ? 'border-rose-500/40 text-rose-400 bg-rose-500/15 font-semibold' : '') + '">📅 ' + esc(p.due_date) + '</span>' : '') + '</div>' +
+      '<div class="space-y-1"><div class="flex justify-between text-[11px] text-neutral-400"><span>Ejecutado: ' + money(spent) + '</span><span class="' + (over ? 'text-rose-400 font-bold' : '') + '">' + (b > 0 ? 'Presupuesto: ' + money(b) : 'Sin presupuesto') + '</span></div><div class="bar ' + (over ? 'over' : '') + '"><i style="width:' + pct + '%"></i></div></div>' +
+      '<div class="ed pt-2 border-t border-neutral-800/80 flex justify-between text-xs">' +
+        (i > 0 ? '<button type="button" onclick="moveProject(\'' + esc(p.id) + '\',-1)" class="text-neutral-400 hover:text-white flex items-center gap-1">‹ ' + STATUS[ORDER[i - 1]] + '</button>' : '<span></span>') +
+        (i < 2 ? '<button type="button" onclick="moveProject(\'' + esc(p.id) + '\',1)" class="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1">' + STATUS[ORDER[i + 1]] + ' ›</button>' : '') + '</div></div>';
   });
   ORDER.forEach(s => { $('col-' + s).innerHTML = cols[s] || '<p class="text-xs text-neutral-600 text-center py-8">Sin proyectos en esta fase</p>'; $('count-' + s).textContent = n[s]; });
 }
 
 function renderMembers() {
   const isAdmin = me && me.role === 'admin';
-  $('members-grid').innerHTML = S.profiles.map(m => `<div class="card p-5 flex justify-between items-center gap-4">
-    <div class="space-y-1 min-w-0"><h4 class="font-bold text-xs text-white flex items-center gap-2">${esc(m.full_name || m.email)}${m.id === me?.id ? ' <span class="text-indigo-400 text-[10px] font-normal">(tú)</span>' : ''}${isAdmin ? `<button type="button" onclick="renameMember('${esc(m.id)}')" class="text-neutral-500 hover:text-white">✎</button>` : ''}</h4><p class="text-xs text-neutral-400 truncate">✉ ${esc(m.email)}</p></div>
-    ${isAdmin && m.id !== me.id
-      ? `<select onchange="setRole('${esc(m.id)}',this.value)" class="inp" style="width:auto">${Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${m.role === k ? 'selected' : ''}>${v}</option>`).join('')}</select>`
-      : `<span class="tag font-semibold">${ROLES[m.role] || esc(m.role)}</span>`}
-  </div>`).join('');
+  $('members-grid').innerHTML = S.profiles.map(m => '<div class="card p-5 flex justify-between items-center gap-4">' +
+    '<div class="space-y-1 min-w-0"><h4 class="font-bold text-xs text-white flex items-center gap-2">' + esc(m.full_name || m.email) + (m.id === me?.id ? ' <span class="text-indigo-400 text-[10px] font-normal">(tú)</span>' : '') + (isAdmin ? '<button type="button" onclick="renameMember(\'' + esc(m.id) + '\')" class="text-neutral-500 hover:text-white ml-1">✎</button>' : '') + '</h4><p class="text-xs text-neutral-400 truncate">✉ ' + esc(m.email) + '</p></div>' +
+    (isAdmin && m.id !== me.id
+      ? '<select onchange="setRole(\'' + esc(m.id) + '\',this.value)" class="inp" style="width:auto">' + Object.entries(ROLES).map(([k, v]) => '<option value="' + k + '" ' + (m.role === k ? 'selected' : '') + '>' + v + '</option>').join('') + '</select>'
+      : '<span class="tag font-semibold">' + (ROLES[m.role] || esc(m.role)) + '</span>') +
+  '</div>').join('');
 }
 
 function renderAudit() {
-  $('audit-list').innerHTML = S.audit_log.map(a => `<li class="pt-3 flex justify-between items-center gap-4"><div><span class="text-white font-medium">${esc(a.action)}</span><span class="text-[11px] text-neutral-400 block mt-0.5">Responsable: ${esc(a.user_name || 'Sistema')}</span></div><span class="text-[11px] font-mono text-neutral-400 whitespace-nowrap bg-neutral-900 px-2.5 py-1 rounded-md border border-neutral-800">${new Date(a.created_at).toLocaleString()}</span></li>`).join('') || '<li class="text-neutral-500 text-center py-4">Sin registros de auditoría.</li>';
+  $('audit-list').innerHTML = S.audit_log.map(a => '<li class="pt-3 flex justify-between items-center gap-4"><div><span class="text-white font-medium">' + esc(a.action) + '</span><span class="text-[11px] text-neutral-400 block mt-0.5">Responsable: ' + esc(a.user_name || 'Sistema') + '</span></div><span class="text-[11px] font-mono text-neutral-400 whitespace-nowrap bg-neutral-900 px-2.5 py-1 rounded-md border border-neutral-800">' + new Date(a.created_at).toLocaleString() + '</span></li>').join('') || '<li class="text-neutral-500 text-center py-4">Sin registros de auditoría.</li>';
 }
 
 function renderDashboard() {
   let inc = 0, exp = 0, ni = 0, ne = 0;
   S.finances.forEach(f => { if (f.type === 'income') { inc += Number(f.amount); ni++; } else { exp += Number(f.amount); ne++; } });
   const bal = inc - exp, act = S.projects.filter(p => p.status === 'in_progress').length, done = S.projects.filter(p => p.status === 'done').length;
-  $('greet').textContent = 'Bienvenido de vuelta, ' + String(me.full_name \vert{}\vert{} me.email).split(' ')[0] + ' ⚡';$('kpi-balance').textContent = money(bal); $('kpi-balance').className = 'text-2xl font-bold tracking-tight mt-1 ' + (bal < 0 ? 'text-rose-400' : 'text-white');$('kpi-balance-sub').textContent = inc > 0 ? `Margen operativo ${Math.round(bal / inc * 100)}%` : 'Sin ingresos registrados';
-  $('kpi-income').textContent = money(inc);$('kpi-income-sub').textContent = `${ni} transacciones`;
-  $('kpi-expense').textContent = money(exp);$('kpi-expense-sub').textContent = `${ne} transacciones`;
-  $('kpi-projects').textContent = S.projects.length; $('kpi-projects-sub').textContent = `${act} activos · ${done} completados`;
+  $('greet').textContent = 'Bienvenido de vuelta, ' + String(me.full_name || me.email).split(' ')[0] + ' ⚡';
+  $('kpi-balance').textContent = money(bal); $('kpi-balance').className = 'text-2xl font-bold tracking-tight mt-1 ' + (bal < 0 ? 'text-rose-400' : 'text-white');
+  $('kpi-balance-sub').textContent = inc > 0 ? 'Margen operativo ' + Math.round(bal / inc * 100) + '%' : 'Sin ingresos registrados';
+  $('kpi-income').textContent = money(inc); $('kpi-income-sub').textContent = ni + ' transacciones';
+  $('kpi-expense').textContent = money(exp); $('kpi-expense-sub').textContent = ne + ' transacciones';
+  $('kpi-projects').textContent = S.projects.length; $('kpi-projects-sub').textContent = act + ' activos · ' + done + ' completados';
   
   const al = [];
   S.projects.forEach(p => {
     if (p.status === 'done') return;
     const spent = S.finances.filter(f => f.project_id === p.id && f.type === 'expense').reduce((s, f) => s + Number(f.amount), 0);
-    if (Number(p.budget) > 0 && spent > Number(p.budget)) al.push(['rose', `⚠️ Proyecto “${p.name}” excedió su presupuesto (${money(spent)} / ${money(p.budget)})`]);
+    if (Number(p.budget) > 0 && spent > Number(p.budget)) al.push(['rose', '⚠️ Proyecto “' + p.name + '” excedió su presupuesto (' + money(spent) + ' / ' + money(p.budget) + ')']);
     if (p.due_date) {
       const d = Math.ceil((new Date(p.due_date) - new Date(today())) / 864e5);
-      if (d < 0) al.push(['rose', `🚨 Proyecto “${p.name}” vencido hace ${-d} día(s)`]);
-      else if (d <= 7) al.push(['amber', `⏳ Proyecto “${p.name}” vence en ${d} día(s)`]);
+      if (d < 0) al.push(['rose', '🚨 Proyecto “' + p.name + '” vencido hace ' + (-d) + ' día(s)']);
+      else if (d <= 7) al.push(['amber', '⏳ Proyecto “' + p.name + '” vence en ' + d + ' día(s)']);
     }
   });
-  $('alerts').innerHTML = al.map(([c, m]) => `<li class="flex gap-2.5 p-3 rounded-lg border ${c === 'rose' ? 'border-rose-500/30 bg-rose-500/10 text-rose-300' : 'border-amber-500/30 bg-amber-500/10 text-amber-300'} font-medium"><span>•</span><span>${esc(m)}</span></li>`).join('') || '<li class="p-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 font-medium">✓ Sistema óptimo: Sin alertas críticas pendientes.</li>';
-  $('recent').innerHTML = S.audit_log.slice(0, 5).map(a => `<li class="flex justify-between gap-4 pt-2"><span class="text-neutral-200">${esc(a.action)} <span class="text-neutral-400">· ${esc(a.user_name || 'Sistema')}</span></span><span class="text-[11px] font-mono text-neutral-400 whitespace-nowrap">${new Date(a.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span></li>`).join('') || '<li class="text-neutral-500">Sin actividad reciente.</li>';
+  $('alerts').innerHTML = al.map(([c, m]) => '<li class="flex gap-2.5 p-3 rounded-lg border ' + (c === 'rose' ? 'border-rose-500/30 bg-rose-500/10 text-rose-300' : 'border-amber-500/30 bg-amber-500/10 text-amber-300') + ' font-medium"><span>•</span><span>' + esc(m) + '</span></li>').join('') || '<li class="p-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 font-medium">✓ Sistema óptimo: Sin alertas críticas pendientes.</li>';
+  $('recent').innerHTML = S.audit_log.slice(0, 5).map(a => '<li class="flex justify-between gap-4 pt-2"><span class="text-neutral-200">' + esc(a.action) + ' <span class="text-neutral-400">· ' + esc(a.user_name || 'Sistema') + '</span></span><span class="text-[11px] font-mono text-neutral-400 whitespace-nowrap">' + new Date(a.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + '</span></li>').join('') || '<li class="text-neutral-500">Sin actividad reciente.</li>';
 }
 
 function renderChart() {
@@ -563,15 +567,15 @@ function renderAll() {
 function renderTasks() {
   const ce = ['admin', 'editor'].includes(me.role);
   const who = id => { const p = S.profiles.find(x => x.id === id); return p ? (p.full_name || p.email) : ''; };
-  const row = t => `<li class="flex items-center gap-3 px-3 py-3"><input type="checkbox" ${t.done ? 'checked' : ''} ${ce ? '' : 'disabled'} onchange="toggleTask('${esc(t.id)}',this.checked)" class="w-4 h-4 accent-indigo-500 rounded cursor-pointer shrink-0">
-    <span class="flex-1 text-xs ${t.done ? 'line-through text-neutral-500' : 'text-neutral-200'} font-medium">${esc(t.title)}</span>
-    <span class="text-[11px] text-neutral-400 hidden sm:inline">${esc(who(t.created_by))}</span>
-    <button type="button" onclick="deleteTask('${esc(t.id)}')" class="ed text-neutral-500 hover:text-rose-400 text-xs">✕</button></li>`;
+  const row = t => '<li class="flex items-center gap-3 px-3 py-3"><input type="checkbox" ' + (t.done ? 'checked' : '') + ' ' + (ce ? '' : 'disabled') + ' onchange="toggleTask(\'' + esc(t.id) + '\',this.checked)" class="w-4 h-4 accent-indigo-500 rounded cursor-pointer shrink-0">' +
+    '<span class="flex-1 text-xs ' + (t.done ? 'line-through text-neutral-500' : 'text-neutral-200') + ' font-medium">' + esc(t.title) + '</span>' +
+    '<span class="text-[11px] text-neutral-400 hidden sm:inline">' + esc(who(t.created_by)) + '</span>' +
+    '<button type="button" onclick="deleteTask(\'' + esc(t.id) + '\')" class="ed text-neutral-500 hover:text-rose-400 text-xs">✕</button></li>';
   const pend = S.tasks.filter(t => !t.done);
   const done = S.tasks.filter(t => t.done).sort((a, b) => String(b.done_at || '').localeCompare(String(a.done_at || '')));
   $('task-pending').innerHTML = pend.map(row).join('') || '<li class="p-6 text-center text-xs text-neutral-500">No hay tareas pendientes. ¡Todo al día! 🎉</li>';
   $('task-done').innerHTML = done.map(row).join('') || '<li class="p-6 text-center text-xs text-neutral-500">Aún no hay tareas completadas.</li>';
-  $('task-count').textContent = `${pend.length} pendientes · ${done.length} completadas`;
+  $('task-count').textContent = pend.length + ' pendientes · ' + done.length + ' completadas';
   $('task-bar').style.width = (S.tasks.length ? Math.round(done.length / S.tasks.length * 100) : 0) + '%';
 }
 async function addTask() {
@@ -595,7 +599,7 @@ const CAL_COLORS = ['#6366f1', '#34d399', '#f59e0b', '#f43f5e', '#06b6d4', '#a85
 const calOn = new Set(['group', 'me']);
 const gcal = () => (S.app_settings.find(s => s.key === 'group_calendar') || {}).value || '';
 function calToggle(k) { calOn.has(k) ? calOn.delete(k) : calOn.add(k); renderCalendar(); }
-function calChip(k, label) { return `<button type="button" onclick="calToggle('${esc(k)}')" class="tag px-3 py-1.5 text-xs ${calOn.has(k) ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40 font-semibold' : 'text-neutral-400'}">${esc(label)}</button>`; }
+function calChip(k, label) { return '<button type="button" onclick="calToggle(\'' + esc(k) + '\')" class="tag px-3 py-1.5 text-xs ' + (calOn.has(k) ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40 font-semibold' : 'text-neutral-400') + '">' + esc(label) + '</button>'; }
 function renderCalendar() {
   const g = gcal(), chips = [], src = [];
   if (g) { chips.push(calChip('group', '👥 Grupo de Ingeniería')); if (calOn.has('group')) src.push([g, CAL_COLORS[0]]); }
@@ -607,7 +611,7 @@ function renderCalendar() {
     if (calOn.has(k)) src.push([p.calendar_id, CAL_COLORS[(i + 1) % CAL_COLORS.length]]);
   });
   $('cal-chips').innerHTML = chips.join('');
-  if (document.activeElement !== $('cal-group-input'))$('cal-group-input').value = g;
+  if (document.activeElement !== $('cal-group-input')) $('cal-group-input').value = g;
   $('cal-new').href = 'https://calendar.google.com/calendar/render?action=TEMPLATE' + (g ? '&src=' + encodeURIComponent(g) : '');
   $('cal-help').textContent = src.length ? '' : (g || chips.length ? 'Activa al menos un calendario en los botones superiores para visualizarlo.' : 'No hay calendarios conectados. El administrador puede enlazar el del equipo y cada integrante el suyo desde "Mi perfil".');
   $('cal-frame').classList.toggle('hidden', !src.length);
@@ -627,12 +631,12 @@ function exportCSV() {
   const cell = c => { let s = String(c ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
   const rows = [['Fecha', 'Concepto', 'Categoría', 'Proyecto', 'Tipo', 'Monto']].concat(S.finances.map(f => [f.date, f.concept, f.category || '', projName(f.project_id), f.type === 'income' ? 'Ingreso' : 'Egreso', f.amount]));
   const blob = new Blob(['\ufeff' + rows.map(r => r.map(cell).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `nexus_finanzas_${today()}.csv`;
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'nexus_finanzas_' + today() + '.csv';
   document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
 }
 function exportData() {
   const blob = new Blob([JSON.stringify({ projects: S.projects, finances: S.finances, profiles: S.profiles, tasks: S.tasks }, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `nexus_backup_${today()}.json`;
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'nexus_backup_' + today() + '.json';
   document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
 }
 </script>
