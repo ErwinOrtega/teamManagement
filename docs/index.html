@@ -580,7 +580,7 @@ function renderCalendar() {
     if (!p.calendar_id || !(mine || p.calendar_shared)) return;
     const k = mine ? 'me' : p.id;
     chips.push(calChip(k, mine ? '🙋 Mi calendario' : '👤 ' + (p.full_name || p.email)));
-    if (calOn.has(k)) src.push([p.calendar_id, CAL_COLORS[(i + 1) % CAL_COLORS.length만큼]]);
+    if (calOn.has(k)) src.push([p.calendar_id, CAL_COLORS[(i + 1) % CAL_COLORS.length]]);
   });
   $('cal-chips').innerHTML = chips.join('');
   if (document.activeElement !== $('cal-group-input'))$('cal-group-input').value = g;
