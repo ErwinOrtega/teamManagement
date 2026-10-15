@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Biomedical Engineering · Gestión Integral</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚕️</text></svg>">
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <script>
   tailwind.config = {
@@ -78,7 +78,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 <div id="auth" class="min-h-screen flex items-center justify-center p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#050b14] to-[#030712]">
   <form id="auth-form" class="card w-full max-w-md p-8 space-y-6" onsubmit="return doAuth(event)">
     <div class="text-center space-y-2">
-      <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-2xl mx-auto shadow-inner">⚡</div>
+      <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-2xl mx-auto shadow-inner">⚕️</div>
       <h1 class="text-xl font-bold tracking-tight text-white">Biomedical Engineering</h1>
       <p id="auth-sub" class="text-xs text-neutral-400">Plataforma de gestión y operaciones</p>
     </div>
@@ -96,7 +96,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 <div id="backdrop" class="fixed inset-0 z-30 hidden bg-black/60 backdrop-blur-sm lg:hidden" onclick="toggleSide(false)"></div>
 <aside id="side" class="side fixed inset-y-0 left-0 z-40 flex flex-col">
   <div class="flex items-center gap-3 px-5 h-20 border-b border-neutral-800 shrink-0">
-    <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-xl shrink-0 shadow-sm">⚡</div>
+    <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-xl shrink-0 shadow-sm">⚕️</div>
     <div class="lt min-w-0"><h1 class="text-sm font-bold truncate text-white">Biomedical Engineering</h1><p class="text-[11px] text-neutral-400">Gestión de proyectos</p></div>
   </div>
   <nav id="nav" class="flex-1 overflow-y-auto p-3 space-y-1.5"></nav>
@@ -519,7 +519,7 @@ function renderDashboard() {
   let inc = 0, exp = 0, ni = 0, ne = 0;
   S.finances.forEach(f => { if (f.type === 'income') { inc += Number(f.amount); ni++; } else { exp += Number(f.amount); ne++; } });
   const bal = inc - exp, act = S.projects.filter(p => p.status === 'in_progress').length, done = S.projects.filter(p => p.status === 'done').length;
-  $('greet').textContent = 'Bienvenido de vuelta, ' + String(me.full_name || me.email).split(' ')[0] + ' ⚡';
+  $('greet').textContent = 'Bienvenido de vuelta, ' + String(me.full_name || me.email).split(' ')[0] + ' ⚕️';
   $('kpi-balance').textContent = money(bal); $('kpi-balance').className = 'text-2xl font-bold tracking-tight mt-1 ' + (bal < 0 ? 'text-rose-400' : 'text-white');
   $('kpi-balance-sub').textContent = inc > 0 ? 'Margen operativo ' + Math.round(bal / inc * 100) + '%' : 'Sin ingresos registrados';
   $('kpi-income').textContent = money(inc); $('kpi-income-sub').textContent = ni + ' transacciones';
