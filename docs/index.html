@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nexus Engineering · Gestión Integral</title>
+<title>Biomedical Engineering · Gestión Integral</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <script>
@@ -79,7 +79,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
   <form id="auth-form" class="card w-full max-w-md p-8 space-y-6" onsubmit="return doAuth(event)">
     <div class="text-center space-y-2">
       <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-2xl mx-auto shadow-inner">⚡</div>
-      <h1 class="text-xl font-bold tracking-tight text-white">Nexus Engineering</h1>
+      <h1 class="text-xl font-bold tracking-tight text-white">Biomedical Engineering</h1>
       <p id="auth-sub" class="text-xs text-neutral-400">Plataforma de gestión y operaciones</p>
     </div>
     <div id="name-wrap" class="hidden space-y-1"><label class="lbl">Nombre completo</label><input id="a-name" class="inp" placeholder="Ing. Juan Pérez"></div>
@@ -97,7 +97,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 <aside id="side" class="side fixed inset-y-0 left-0 z-40 flex flex-col">
   <div class="flex items-center gap-3 px-5 h-20 border-b border-neutral-800 shrink-0">
     <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-xl shrink-0 shadow-sm">⚡</div>
-    <div class="lt min-w-0"><h1 class="text-sm font-bold truncate text-white">Nexus Core</h1><p class="text-[11px] text-neutral-400">Ingeniería & Proyectos</p></div>
+    <div class="lt min-w-0"><h1 class="text-sm font-bold truncate text-white">Biomedical Engineering</h1><p class="text-[11px] text-neutral-400">Gestión de proyectos</p></div>
   </div>
   <nav id="nav" class="flex-1 overflow-y-auto p-3 space-y-1.5"></nav>
   <div class="p-3 border-t border-neutral-800 space-y-2 shrink-0">
@@ -320,7 +320,7 @@ async function start(user) {
   $('auth').classList.add('hidden'); $('app').classList.remove('hidden');
   renderNav();
   await Promise.all(Object.keys(S).map(load));
-  const ch = sb.channel('nexus_live');
+  const ch = sb.channel('biomedical_live');
   Object.keys(S).forEach(t => ch.on('postgres_changes', { event: '*', schema: 'public', table: t }, () => load(t)));
   ch.subscribe();
   window._ch = ch;
@@ -631,12 +631,12 @@ function exportCSV() {
   const cell = c => { let s = String(c ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
   const rows = [['Fecha', 'Concepto', 'Categoría', 'Proyecto', 'Tipo', 'Monto']].concat(S.finances.map(f => [f.date, f.concept, f.category || '', projName(f.project_id), f.type === 'income' ? 'Ingreso' : 'Egreso', f.amount]));
   const blob = new Blob(['\ufeff' + rows.map(r => r.map(cell).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'nexus_finanzas_' + today() + '.csv';
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = '_finanzas_' + today() + '.csv';
   document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
 }
 function exportData() {
   const blob = new Blob([JSON.stringify({ projects: S.projects, finances: S.finances, profiles: S.profiles, tasks: S.tasks }, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'nexus_backup_' + today() + '.json';
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = '_backup_' + today() + '.json';
   document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
 }
 </script>
