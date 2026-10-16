@@ -2,285 +2,302 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("theme")||"dark"}catch(e){document.documentElement.dataset.theme="dark"}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Biomedical Engineering · Gestión Integral</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚕️</text></svg>">
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          neutral: {
-            100: "#f8fafc",
-            200: "#e2e8f0",
-            300: "#cbd5e1",
-            400: "#94a3b8",
-            500: "#64748b",
-            600: "#475569",
-            700: "#334155",
-            800: "#1e293b",
-            900: "#0f172a",
-            950: "#050b14"
-          }
-        }
-      }
-    },
-    fontFamily: {
-      sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif']
-    }
-  }
-</script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:["Inter","system-ui","sans-serif"]},colors:{neutral:{100:"rgb(var(--n100) / <alpha-value>)",200:"rgb(var(--n200) / <alpha-value>)",300:"rgb(var(--n300) / <alpha-value>)",400:"rgb(var(--n400) / <alpha-value>)",500:"rgb(var(--n500) / <alpha-value>)",600:"rgb(var(--n600) / <alpha-value>)",700:"rgb(var(--n700) / <alpha-value>)",800:"rgb(var(--n800) / <alpha-value>)",900:"rgb(var(--n900) / <alpha-value>)",950:"rgb(var(--n950) / <alpha-value>)"}}}}}</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
-:root{--bg:#050b14;--surface:#0f172a;--surface-card:#1e293b;--line:#334155;--accent:#6366f1}
-body{background:var(--bg);color:#f8fafc;font-family:'Inter',sans-serif}
-.inp{width:100%;background:#0b1120;border:1px solid #334155;border-radius:.6rem;padding:.55rem .75rem;color:#f8fafc;font-size:.8rem;transition:all .2s}
-.inp:focus{outline:none;border-color:#818cf8;box-shadow:0 0 0 3px rgba(99,102,241,.25)}
-.lbl{display:block;color:#94a3b8;margin-bottom:.3rem;font-size:.75rem;font-weight:500}
-.bw{background:var(--accent);color:#fff;font-weight:600;border-radius:.6rem;padding:.5rem 1rem;font-size:.8rem;transition:all .2s;box-shadow:0 4px 12px rgba(99,102,241,.3)}
-.bw:hover{background:#818cf8;box-shadow:0 6px 16px rgba(99,102,241,.4)}
-.bg{background:#1e293b;color:#cbd5e1;border-radius:.6rem;padding:.5rem 1rem;font-size:.8rem;border:1px solid #334155;transition:all .2s}
-.bg:hover{background:#273449;color:#fff;border-color:#475569}
-.card{background:var(--surface);border:1px solid #1e293b;border-radius:1rem;box-shadow:0 10px 25px -5px rgba(0,0,0,.3),0 8px 10px -6px rgba(0,0,0,.3)}
-.modal{display:none;position:fixed;inset:0;background:rgba(2,6,23,.8);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:1rem;z-index:60}
+:root,[data-theme=dark]{color-scheme:dark;--n100:241 245 249;--n200:226 232 240;--n300:203 213 225;--n400:148 163 184;--n500:100 116 139;--n600:71 85 105;--n700:51 65 85;--n800:36 48 73;--n900:24 34 59;--n950:11 16 32;--bg:#0b1020;--surface:#121a2f;--line:#243049;--glow:rgba(124,140,255,.14);--grid:#243049;--tick:#93a1bb;--shadow:0 8px 30px rgba(0,0,0,.35)}
+[data-theme=light]{color-scheme:light;--n100:15 23 42;--n200:30 41 59;--n300:51 65 85;--n400:91 107 134;--n500:100 116 139;--n600:148 163 184;--n700:203 213 225;--n800:227 232 242;--n900:241 244 250;--n950:244 246 251;--bg:#f4f6fb;--surface:#ffffff;--line:#e3e8f2;--glow:rgba(91,108,255,.12);--grid:#e3e8f2;--tick:#5b6b86;--shadow:0 6px 24px rgba(30,41,90,.08)}
+body{background:radial-gradient(900px 420px at 85% -10%,var(--glow),transparent) fixed no-repeat,var(--bg);font-family:Inter,system-ui,sans-serif;color:rgb(var(--n100));-webkit-font-smoothing:antialiased}
+.text-white,.hover\:text-white:hover{color:rgb(var(--n100))!important}
+[data-theme=light] .text-emerald-400,[data-theme=light] .text-emerald-300{color:#047857}
+[data-theme=light] .text-rose-400,[data-theme=light] .text-rose-300{color:#be123c}
+[data-theme=light] .text-amber-400,[data-theme=light] .text-amber-300{color:#b45309}
+[data-theme=light] .text-indigo-400,[data-theme=light] .text-indigo-300,[data-theme=light] .text-indigo-200{color:#4338ca}
+.inp{width:100%;background:rgb(var(--n950));border:1px solid rgb(var(--n700));border-radius:.7rem;padding:.55rem .75rem;color:rgb(var(--n100));font-size:.8rem;transition:.15s}
+.inp::placeholder{color:rgb(var(--n500))}
+.inp:focus{outline:none;border-color:#7c8cff;box-shadow:0 0 0 3px rgba(124,140,255,.22)}
+.lbl{display:block;color:rgb(var(--n400));margin-bottom:.3rem;font-size:.72rem;font-weight:600}
+.bw{background:linear-gradient(135deg,#6d7cff,#8b5cf6);color:#fff;font-weight:600;border-radius:.7rem;padding:.55rem 1rem;font-size:.8rem;transition:.15s;box-shadow:0 6px 16px rgba(109,124,255,.35)}
+.bw:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.bg{background:rgb(var(--n900));color:rgb(var(--n300));border:1px solid rgb(var(--n800));border-radius:.7rem;padding:.5rem .9rem;font-size:.8rem;transition:.15s}
+.bg:hover{border-color:rgb(var(--n600));color:rgb(var(--n100))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:1.1rem;box-shadow:var(--shadow)}
+.kpi{position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--k,#7c8cff)}
+.modal{display:none;position:fixed;inset:0;background:rgba(8,12,24,.65);backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:1rem;z-index:60}
 .modal.open{display:flex}
-.modal>div{background:var(--surface);border:1px solid #334155;width:100%;max-width:30rem;border-radius:1.25rem;padding:1.5rem;display:grid;gap:1rem;font-size:.85rem;max-height:90vh;overflow:auto;box-shadow:0 25px 50px -12px rgba(0,0,0,.7)}
-.mf{display:flex;justify-content:flex-end;gap:.75rem;padding-top:1rem;border-top:1px solid #1e293b}
+.modal>div{background:var(--surface);border:1px solid var(--line);width:100%;max-width:30rem;border-radius:1.25rem;padding:1.5rem;display:grid;gap:1rem;font-size:.85rem;max-height:90vh;overflow:auto;box-shadow:0 25px 60px -12px rgba(0,0,0,.5)}
+.mf{display:flex;justify-content:flex-end;gap:.75rem;padding-top:1rem;border-top:1px solid var(--line)}
 body:not(.r-edit) .ed{display:none!important}
 body:not(.r-admin) .ad{display:none!important}
 .toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:80;display:grid;gap:.5rem}
-.toast div{background:#e2e8f0;color:#0f172a;padding:.75rem 1.25rem;border-radius:.75rem;font-size:.8rem;font-weight:500;box-shadow:0 10px 25px rgba(0,0,0,.5)}
-.toast .err{background:#f43f5e;color:#fff}
-.bar{height:6px;background:#1e293b;border-radius:9999px;overflow:hidden}
-.bar>i{display:block;height:100%;background:#34d399;transition:width .4s ease}
-.bar.over>i{background:#f43f5e}
-.tag{font-size:11px;padding:2px 8px;border-radius:9999px;border:1px solid #334155;background:rgba(30,41,59,.5);font-weight:500}
-.side{width:16rem;background:var(--surface);border-right:1px solid #1e293b;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1),width .3s}
+.toast div{background:rgb(var(--n100));color:rgb(var(--n950));padding:.7rem 1.1rem;border-radius:.8rem;font-size:.8rem;font-weight:500;box-shadow:0 10px 25px rgba(0,0,0,.35)}
+.toast .err{background:#e11d48;color:#fff}
+.bar{height:7px;background:rgb(var(--n800));border-radius:9999px;overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#34d399,#2dd4bf);transition:width .4s}
+.bar.over>i{background:#fb7185}
+.tag{font-size:11px;padding:2px 9px;border-radius:9999px;border:1px solid rgb(var(--n800));background:rgb(var(--n900));font-weight:500;color:rgb(var(--n300))}
+.logo{width:2.5rem;height:2.5rem;border-radius:.9rem;display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;background:linear-gradient(135deg,#6d7cff,#8b5cf6);box-shadow:0 6px 18px rgba(109,124,255,.4)}
+.side{width:16.5rem;background:var(--surface);border-right:1px solid var(--line);transform:translateX(-100%);transition:transform .25s,width .25s}
 .side.open{transform:none}
-.nb{display:flex;align-items:center;gap:.75rem;width:100%;padding:.7rem .9rem;border-radius:.75rem;font-size:.85rem;font-weight:500;color:#94a3b8;transition:all .15s;white-space:nowrap}
-.nb:hover{background:#1e293b;color:#fff}
-.nb.act{background:rgba(99,102,241,.15);color:#a5b4fc;border:1px solid rgba(99,102,241,.3)}
+.nb{display:flex;align-items:center;gap:.75rem;width:100%;padding:.65rem .85rem;border-radius:.8rem;font-size:.85rem;font-weight:500;color:rgb(var(--n400));white-space:nowrap;transition:.15s}
+.nb:hover{background:rgb(var(--n900));color:rgb(var(--n100))}
+.nb.act{background:linear-gradient(135deg,rgba(109,124,255,.2),rgba(139,92,246,.12));color:rgb(var(--n100));box-shadow:inset 3px 0 0 #7c8cff}
 .nb .ic{width:1.25rem;text-align:center;flex-shrink:0}
-@media(min-width:1024px){.side{transform:none}.content{margin-left:16rem;transition:margin .3s}body.collapsed .side{width:4.8rem}body.collapsed .content{margin-left:4.8rem}body.collapsed .lt{display:none}body.collapsed .nb{justify-content:center;padding:.7rem}}
+.seg{display:inline-flex;background:rgb(var(--n900));border:1px solid rgb(var(--n800));border-radius:.8rem;padding:.2rem}
+.seg-b{padding:.4rem .85rem;border-radius:.6rem;font-size:.75rem;font-weight:600;color:rgb(var(--n400))}
+.seg-b.on{background:var(--surface);color:rgb(var(--n100));box-shadow:var(--shadow)}
+details>summary::-webkit-details-marker{display:none}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:rgb(var(--n700));border-radius:9999px}
+@media(min-width:1024px){.side{transform:none}.content{margin-left:16.5rem;transition:margin .25s}body.collapsed .side{width:4.8rem}body.collapsed .content{margin-left:4.8rem}body.collapsed .lt{display:none}body.collapsed .nb{justify-content:center;padding:.65rem}}
 </style>
 </head>
-<body class="min-h-screen font-sans antialiased selection:bg-indigo-500 selection:text-white">
+<body class="text-neutral-100 min-h-screen font-sans">
 
-<!-- CONFIGURACIÓN SUPABASE -->
+<!-- CONFIGURACIÓN: pega aquí tus datos de Supabase (Project Settings > API) -->
 <script>
 const SUPABASE_URL = 'https://xriorxsrovlipetxvmhp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhyaW9yeHNyb3ZsaXBldHh2bWhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE3NjM0MDQsImV4cCI6MjEwNzMzOTQwNH0.-2fKZOOQgCdSgUlGYSxUHNILOxGdn7hVXqylqrGMEAo';
 </script>
 
-<!-- LOGIN -->
-<div id="auth" class="min-h-screen flex items-center justify-center p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#050b14] to-[#030712]">
-  <form id="auth-form" class="card w-full max-w-md p-8 space-y-6" onsubmit="return doAuth(event)">
-    <div class="text-center space-y-2">
-      <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-2xl mx-auto shadow-inner">⚕️</div>
-      <h1 class="text-xl font-bold tracking-tight text-white">Biomedical Engineering</h1>
-      <p id="auth-sub" class="text-xs text-neutral-400">Plataforma de gestión y operaciones</p>
-    </div>
-    <div id="name-wrap" class="hidden space-y-1"><label class="lbl">Nombre completo</label><input id="a-name" class="inp" placeholder="Ing. Juan Pérez"></div>
-    <div class="space-y-1"><label class="lbl">Correo electrónico</label><input id="a-email" type="email" required class="inp" placeholder="usuario@empresa.com"></div>
-    <div class="space-y-1"><label class="lbl">Contraseña</label><input id="a-pass" type="password" minlength="6" required class="inp" placeholder="••••••••"></div>
-    <p id="auth-msg" class="text-xs text-rose-400 min-h-[1rem] font-medium"></p>
+<!-- PANTALLA DE LOGIN -->
+<div id="auth" class="min-h-screen flex items-center justify-center p-4">
+  <form id="auth-form" class="card w-full max-w-md p-8 space-y-5" onsubmit="return doAuth(event)">
+    <div class="text-center space-y-2"><div class="logo mx-auto" style="width:3.3rem;height:3.3rem;font-size:1.6rem">⚕️</div><h1 class="text-xl font-bold tracking-tight">Biomedical Engineering</h1><p id="auth-sub" class="text-xs text-neutral-400">Plataforma de gestión y operaciones</p></div>
+    <div id="name-wrap" class="hidden"><label class="lbl">Nombre completo</label><input id="a-name" class="inp"></div>
+    <div><label class="lbl">Correo electrónico</label><input id="a-email" type="email" required class="inp" placeholder="usuario@empresa.com"></div>
+    <div><label class="lbl">Contraseña</label><input id="a-pass" type="password" minlength="6" required class="inp" placeholder="••••••••"></div>
+    <p id="auth-msg" class="text-xs text-rose-400 min-h-[1rem]"></p>
     <button id="auth-btn" class="bw w-full py-2.5">Iniciar sesión</button>
-    <button type="button" onclick="toggleAuth()" id="auth-toggle" class="w-full text-xs text-neutral-400 hover:text-white transition-colors">¿No tienes cuenta? Regístrate</button>
+    <button type="button" onclick="toggleAuth()" id="auth-toggle" class="w-full text-xs text-neutral-400 hover:text-white">¿No tienes cuenta? Regístrate</button>
   </form>
 </div>
 
-<!-- APP PRINCIPAL -->
+<!-- APP -->
 <div id="app" class="hidden">
-<div id="backdrop" class="fixed inset-0 z-30 hidden bg-black/60 backdrop-blur-sm lg:hidden" onclick="toggleSide(false)"></div>
+<div id="backdrop" class="fixed inset-0 z-30 hidden" style="background:rgba(8,12,24,.6)" onclick="toggleSide(false)"></div>
 <aside id="side" class="side fixed inset-y-0 left-0 z-40 flex flex-col">
-  <div class="flex items-center gap-3 px-5 h-20 border-b border-neutral-800 shrink-0">
-    <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-xl shrink-0 shadow-sm">⚕️</div>
-    <div class="lt min-w-0"><h1 class="text-sm font-bold truncate text-white">Biomedical Engineering</h1><p class="text-[11px] text-neutral-400">Gestión de proyectos</p></div>
+  <div class="flex items-center gap-3 px-5 h-20 shrink-0">
+    <div class="logo">⚕️</div>
+    <div class="lt min-w-0"><h1 class="text-sm font-bold truncate">Biomedical Engineering</h1><p class="text-[11px] text-neutral-400">Gestión integral</p></div>
   </div>
-  <nav id="nav" class="flex-1 overflow-y-auto p-3 space-y-1.5"></nav>
-  <div class="p-3 border-t border-neutral-800 space-y-2 shrink-0">
-    <div class="flex items-center gap-3 px-2 py-1">
-      <div id="avatar" class="w-9 h-9 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center justify-center text-xs font-bold shrink-0">?</div>
-      <div class="lt min-w-0"><p id="who" class="text-xs font-medium text-neutral-200 truncate"></p></div>
+  <nav id="nav" class="flex-1 overflow-y-auto px-3 py-2 space-y-1"></nav>
+  <div class="p-3 border-t border-neutral-800 space-y-1 shrink-0">
+    <div class="flex items-center gap-3 px-1 pb-2">
+      <div id="avatar" class="logo" style="width:2.2rem;height:2.2rem;border-radius:9999px;font-size:.85rem;font-weight:700;color:#fff">?</div>
+      <div class="lt min-w-0"><p id="who" class="text-xs font-medium truncate"></p></div>
     </div>
     <button type="button" onclick="openProfile()" class="nb" title="Mi perfil"><span class="ic">👤</span><span class="lt">Mi perfil</span></button>
     <button type="button" onclick="exportData()" class="nb" title="Exportar respaldo"><span class="ic">⬇</span><span class="lt">Exportar respaldo JSON</span></button>
-    <button type="button" onclick="sb.auth.signOut()" class="nb text-rose-400 hover:text-rose-300 hover:bg-rose-500/10" title="Salir"><span class="ic">⏻</span><span class="lt">Cerrar sesión</span></button>
+    <button type="button" onclick="sb.auth.signOut()" class="nb" title="Cerrar sesión"><span class="ic">⏻</span><span class="lt">Cerrar sesión</span></button>
   </div>
 </aside>
 <div class="content">
-  <header class="sticky top-0 z-20 h-20 flex items-center justify-between px-6 border-b border-neutral-800/80 bg-neutral-950/80 backdrop-blur-md">
-    <div class="flex items-center gap-4">
-      <button type="button" onclick="toggleSide()" class="bg p-2" title="Menú" aria-label="Menú">☰</button>
-      <h2 id="page-title" class="text-base font-bold tracking-tight text-white">Dashboard</h2>
-    </div>
-    <div class="flex items-center gap-3">
-      <span class="tag bg-indigo-500/10 text-indigo-300 border-indigo-500/30 hidden sm:inline-block">Modo Producción</span>
-    </div>
+  <header class="sticky top-0 z-20 h-20 flex items-center justify-between gap-3 px-5 lg:px-8 border-b border-neutral-800" style="background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(10px)">
+    <div class="flex items-center gap-3"><button type="button" onclick="toggleSide()" class="bg" title="Menú" aria-label="Menú">☰</button><h2 id="page-title" class="text-base font-bold tracking-tight">Dashboard</h2></div>
+    <button type="button" id="theme-btn" onclick="toggleTheme()" class="bg" title="Cambiar tema claro/oscuro">☀️</button>
   </header>
-<main class="max-w-7xl mx-auto px-6 py-8">
-  <section class="space-y-8">
+<main class="max-w-7xl mx-auto px-5 lg:px-8 py-8">
+  <section class="space-y-6">
 
-    <!-- DASHBOARD -->
-    <div id="tab-dashboard" class="tab space-y-8">
-      <div><h2 id="greet" class="text-xl font-bold text-white">Resumen operativo</h2><p class="text-xs text-neutral-400 mt-0.5">Indicadores clave de rendimiento y finanzas en tiempo real.</p></div>
+    <div id="tab-dashboard" class="tab space-y-6">
+      <div><h2 id="greet" class="text-lg font-semibold">Resumen</h2><p class="text-xs text-neutral-500">Estado general del equipo en tiempo real.</p></div>
       <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <div class="card p-5 space-y-1"><span class="text-[11px] text-neutral-400 uppercase font-semibold tracking-wider">Balance Neto</span><div id="kpi-balance" class="text-2xl font-bold tracking-tight text-white mt-1">0</div><p id="kpi-balance-sub" class="text-[11px] text-neutral-400"></p></div>
-        <div class="card p-5 space-y-1"><span class="text-[11px] text-emerald-400 uppercase font-semibold tracking-wider">Ingresos Totales</span><div id="kpi-income" class="text-2xl font-bold tracking-tight text-emerald-400 mt-1">0</div><p id="kpi-income-sub" class="text-[11px] text-neutral-400"></p></div>
-        <div class="card p-5 space-y-1"><span class="text-[11px] text-rose-400 uppercase font-semibold tracking-wider">Egresos Totales</span><div id="kpi-expense" class="text-2xl font-bold tracking-tight text-rose-400 mt-1">0</div><p id="kpi-expense-sub" class="text-[11px] text-neutral-400"></p></div>
-        <div class="card p-5 space-y-1"><span class="text-[11px] text-indigo-400 uppercase font-semibold tracking-wider">Proyectos Activos</span><div id="kpi-projects" class="text-2xl font-bold tracking-tight text-white mt-1">0</div><p id="kpi-projects-sub" class="text-[11px] text-neutral-400"></p></div>
+        <div class="card kpi p-5" style="--k:#7c8cff"><span class="text-[11px] text-neutral-400 uppercase font-semibold tracking-wider">Balance neto</span><div id="kpi-balance" class="text-2xl font-bold tracking-tight mt-1">0</div><p id="kpi-balance-sub" class="text-[11px] text-neutral-500 mt-1"></p></div>
+        <div class="card kpi p-5" style="--k:#34d399"><span class="text-[11px] text-neutral-400 uppercase font-semibold tracking-wider">Ingresos totales</span><div id="kpi-income" class="text-xl font-semibold text-emerald-400 mt-1">0</div><p id="kpi-income-sub" class="text-[11px] text-neutral-500 mt-1"></p></div>
+        <div class="card kpi p-5" style="--k:#fb7185"><span class="text-[11px] text-neutral-400 uppercase font-semibold tracking-wider">Egresos totales</span><div id="kpi-expense" class="text-xl font-semibold text-rose-400 mt-1">0</div><p id="kpi-expense-sub" class="text-[11px] text-neutral-500 mt-1"></p></div>
+        <div class="card kpi p-5" style="--k:#fbbf24"><span class="text-[11px] text-neutral-400 uppercase font-semibold tracking-wider">Proyectos</span><div id="kpi-projects" class="text-2xl font-bold tracking-tight mt-1">0</div><p id="kpi-projects-sub" class="text-[11px] text-neutral-500 mt-1"></p></div>
       </div>
-      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div class="card p-5 xl:col-span-2 space-y-4"><h3 class="text-xs font-bold text-neutral-300 uppercase tracking-wider">Flujo de caja mensual</h3><div class="h-72"><canvas id="chart"></canvas></div></div>
-        <div class="card p-5 space-y-4"><h3 class="text-xs font-bold text-neutral-300 uppercase tracking-wider">Distribución de gastos</h3><div class="h-72"><canvas id="chart2"></canvas></div></div>
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+        <div class="card p-4 xl:col-span-2 space-y-3"><h3 class="text-xs text-neutral-400 uppercase">Flujo de caja por mes</h3><div class="h-64"><canvas id="chart"></canvas></div></div>
+        <div class="card p-4 space-y-3"><h3 class="text-xs text-neutral-400 uppercase">Gastos por categoría</h3><div class="h-64"><canvas id="chart2"></canvas></div></div>
       </div>
-      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <div class="card p-5 space-y-4"><h3 class="text-xs font-bold text-neutral-300 uppercase tracking-wider">Alertas y vencimientos</h3><ul id="alerts" class="space-y-2.5 text-xs"></ul></div>
-        <div class="card p-5 space-y-4"><h3 class="text-xs font-bold text-neutral-300 uppercase tracking-wider">Actividad reciente en servidores</h3><ul id="recent" class="space-y-3 text-xs divide-y divide-neutral-800"></ul></div>
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <div class="card p-4 space-y-3"><h3 class="text-xs text-neutral-400 uppercase">Alertas</h3><ul id="alerts" class="space-y-2 text-xs"></ul></div>
+        <div class="card p-4 space-y-3"><h3 class="text-xs text-neutral-400 uppercase">Actividad reciente</h3><ul id="recent" class="space-y-2 text-xs"></ul></div>
       </div>
     </div>
 
-    <!-- FINANZAS -->
     <div id="tab-finances" class="tab hidden space-y-6">
-      <div class="flex justify-between items-center flex-wrap gap-4"><div><h2 class="text-lg font-bold text-white">Control Financiero</h2><p class="text-xs text-neutral-400 mt-0.5">Registro contable de ingresos, costes y caja común.</p></div>
-        <button type="button" onclick="openFin()" class="bw ed">+ Registrar transacción</button></div>
-      <div class="flex flex-wrap gap-3 items-center card p-4">
-        <input id="fin-search" oninput="renderFinances()" placeholder="Buscar concepto, categoría o proyecto..." class="inp" style="max-width:22rem">
-        <select id="fin-filter" onchange="renderFinances()" class="inp" style="width:auto"><option value="">Todos los tipos</option><option value="income">Solo Ingresos</option><option value="expense">Solo Egresos</option></select>
-        <button type="button" onclick="exportCSV()" class="bg">⬇ Exportar CSV</button>
-        <span id="fin-total" class="text-xs text-neutral-400 ml-auto font-medium"></span>
+      <div class="flex justify-between items-center"><div><h2 class="text-lg font-bold">Movimientos</h2><p class="text-xs text-neutral-500">Ingresos y gastos.</p></div>
+        <button type="button" onclick="openFin()" class="bw ed">+ Registrar</button></div>
+      <div class="flex flex-wrap gap-2 items-center">
+        <input id="fin-search" oninput="renderFinances()" placeholder="Buscar concepto, categoría o proyecto…" class="inp" style="max-width:20rem">
+        <select id="fin-filter" onchange="renderFinances()" class="inp" style="width:auto"><option value="">Todos</option><option value="income">Ingresos</option><option value="expense">Egresos</option></select>
+        <button type="button" onclick="exportCSV()" class="bg">⬇ CSV</button>
+        <span id="fin-total" class="text-xs text-neutral-500 ml-auto"></span>
       </div>
       <div class="card overflow-x-auto"><table class="w-full text-left text-xs text-neutral-300">
-        <thead class="bg-neutral-900/80 text-neutral-400 uppercase tracking-wider border-b border-neutral-800"><tr><th class="p-3.5">Fecha</th><th class="p-3.5">Concepto</th><th class="p-3.5">Categoría</th><th class="p-3.5">Proyecto</th><th class="p-3.5">Tipo</th><th class="p-3.5">Monto</th><th class="p-3.5 text-right">Acciones</th></tr></thead>
-        <tbody id="fin-body" class="divide-y divide-neutral-800/60"></tbody></table></div>
+        <thead class="bg-neutral-900/50 text-neutral-500 uppercase"><tr><th class="p-3">Fecha</th><th class="p-3">Concepto</th><th class="p-3">Categoría</th><th class="p-3">Proyecto</th><th class="p-3">Tipo</th><th class="p-3">Monto</th><th class="p-3"></th></tr></thead>
+        <tbody id="fin-body" class="divide-y divide-neutral-900"></tbody></table></div>
     </div>
 
-    <!-- PROYECTOS -->
     <div id="tab-projects" class="tab hidden space-y-6">
-      <div class="flex justify-between items-center flex-wrap gap-4"><div><h2 class="text-lg font-bold text-white">Gestión de Proyectos & Kanban</h2><p class="text-xs text-neutral-400 mt-0.5">Control de avances, asignación presupuestaria y entregables.</p></div>
-        <button type="button" onclick="openProj()" class="bw ed">+ Nuevo proyecto</button></div>
-      <input id="proj-search" oninput="renderProjects()" placeholder="Filtrar por nombre o categoría..." class="inp" style="max-width:22rem">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="card p-4 space-y-4"><div class="text-xs font-bold text-neutral-400 uppercase tracking-wider flex justify-between border-b border-neutral-800 pb-3"><span>Por Hacer</span><span id="count-todo" class="tag">0</span></div><div id="col-todo" class="space-y-3 min-h-[250px]"></div></div>
-        <div class="card p-4 space-y-4"><div class="text-xs font-bold text-indigo-300 uppercase tracking-wider flex justify-between border-b border-neutral-800 pb-3"><span>En Progreso</span><span id="count-in_progress" class="tag">0</span></div><div id="col-in_progress" class="space-y-3 min-h-[250px]"></div></div>
-        <div class="card p-4 space-y-4"><div class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex justify-between border-b border-neutral-800 pb-3"><span>Completado</span><span id="count-done" class="tag">0</span></div><div id="col-done" class="space-y-3 min-h-[250px]"></div></div>
+      <div class="flex justify-between items-center"><div><h2 class="text-lg font-bold">Proyectos</h2><p class="text-xs text-neutral-500">Presupuesto asignado vs. ejecutado.</p></div>
+        <button type="button" onclick="openProj()" class="bw ed">+ Nuevo Proyecto</button></div>
+      <input id="proj-search" oninput="renderProjects()" placeholder="Buscar proyecto…" class="inp" style="max-width:20rem">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="card p-3 space-y-3"><div class="text-[11px] font-semibold text-neutral-400 uppercase flex justify-between border-b border-neutral-900 pb-2"><span>Por Hacer</span><span id="count-todo">0</span></div><div id="col-todo" class="space-y-3 min-h-[200px]"></div></div>
+        <div class="card p-3 space-y-3"><div class="text-[11px] font-semibold text-neutral-300 uppercase flex justify-between border-b border-neutral-900 pb-2"><span>En Progreso</span><span id="count-in_progress">0</span></div><div id="col-in_progress" class="space-y-3 min-h-[200px]"></div></div>
+        <div class="card p-3 space-y-3"><div class="text-[11px] font-semibold text-emerald-400 uppercase flex justify-between border-b border-neutral-900 pb-2"><span>Completado</span><span id="count-done">0</span></div><div id="col-done" class="space-y-3 min-h-[200px]"></div></div>
       </div>
     </div>
 
-    <!-- TAREAS -->
     <div id="tab-tasks" class="tab hidden space-y-6">
-      <div class="flex justify-between items-end gap-3 flex-wrap"><div><h2 class="text-lg font-bold text-white">Lista de Tareas Pendientes</h2><p class="text-xs text-neutral-400 mt-0.5">Coordinación rápida del equipo de trabajo.</p></div><span id="task-count" class="text-xs text-neutral-400 font-medium"></span></div>
-      <div class="bar"><i id="task-bar" style="width:0%"></i></div>
-      <div class="ed flex gap-3"><input id="task-input" class="inp" placeholder="Escribe una nueva tarea y pulsa Enter..." onkeydown="if(event.key==='Enter')addTask()"><button type="button" onclick="addTask()" class="bw shrink-0">Agregar tarea</button></div>
-      <div class="card p-3"><ul id="task-pending" class="divide-y divide-neutral-800/60"></ul></div>
-      <div class="space-y-3 pt-2">
-        <div class="flex justify-between items-center"><h3 class="text-xs font-bold text-neutral-400 uppercase tracking-wider">Tareas completadas</h3><button type="button" onclick="clearDone()" class="ed text-xs text-neutral-500 hover:text-rose-400 transition-colors">Limpiar historial completado</button></div>
-        <div class="card p-3"><ul id="task-done" class="divide-y divide-neutral-800/60"></ul></div>
+      <div class="flex justify-between items-end gap-3 flex-wrap">
+        <div><h2 id="task-h" class="text-lg font-bold">Tareas del equipo</h2><p id="task-sub" class="text-xs text-neutral-400 mt-0.5"></p></div>
+        <div class="flex gap-3 items-center flex-wrap">
+          <div class="seg"><button type="button" id="seg-general" onclick="setTaskSection('general')" class="seg-b">Tareas del equipo</button><button type="button" id="seg-constitucion" onclick="setTaskSection('constitucion')" class="seg-b">Ruta de constitución</button></div>
+          <label class="text-xs text-neutral-400 flex items-center gap-1.5 cursor-pointer"><input type="checkbox" id="task-mine" onchange="renderTasks()" class="accent-indigo-500"> Solo mías</label>
+        </div>
+      </div>
+      <div class="flex items-center gap-3"><div class="bar flex-1"><i id="task-bar" style="width:0%"></i></div><span id="task-count" class="text-xs text-neutral-400 whitespace-nowrap"></span></div>
+      <div class="ed card p-3 grid gap-2 md:grid-cols-[1fr_11rem_9rem_11rem_auto]">
+        <input id="task-input" class="inp" placeholder="Nueva tarea…" onkeydown="if(event.key==='Enter')addTask()">
+        <select id="task-who" class="inp"></select><input id="task-due" type="date" class="inp"><select id="task-proj" class="inp"></select>
+        <button type="button" onclick="addTask()" class="bw">Agregar</button>
+      </div>
+      <div id="task-seed" class="ad hidden card p-4 flex items-center justify-between gap-3 flex-wrap"><p class="text-xs text-neutral-400">Aún no hay pasos. Carga una ruta sugerida y ajústala con tu contador o abogado.</p><button type="button" onclick="seedRuta()" class="bw">Cargar pasos sugeridos</button></div>
+      <div class="card p-2"><ul id="task-pending" class="divide-y divide-neutral-800"></ul></div>
+      <div class="space-y-3">
+        <div class="flex justify-between items-center"><h3 class="text-xs font-bold text-neutral-400 uppercase tracking-wider">Completadas</h3><button type="button" onclick="clearDone()" class="ed text-xs text-neutral-500 hover:text-rose-400">Limpiar completadas de esta lista</button></div>
+        <div class="card p-2"><ul id="task-done" class="divide-y divide-neutral-800"></ul></div>
       </div>
     </div>
 
-    <!-- CALENDARIO -->
     <div id="tab-calendar" class="tab hidden space-y-4">
       <div class="flex justify-between items-end gap-3 flex-wrap">
-        <div><h2 class="text-lg font-bold text-white">Calendario Integrado</h2><p class="text-xs text-neutral-400 mt-0.5">Fechas clave, reuniones técnicas y disponibilidad de miembros.</p></div>
-        <div class="flex gap-3 items-center">
+        <div><h2 class="text-lg font-bold">Calendario</h2><p class="text-xs text-neutral-500">Eventos del grupo y, si quieres, los de cada integrante.</p></div>
+        <div class="flex gap-2 items-center">
           <select id="cal-mode" onchange="renderCalendar()" class="inp" style="width:auto"><option value="MONTH">Mes</option><option value="WEEK">Semana</option><option value="AGENDA">Agenda</option></select>
-          <a id="cal-new" target="_blank" rel="noopener" class="bw inline-block">＋ Nuevo evento en Google</a>
+          <a id="cal-new" target="_blank" rel="noopener" class="bw inline-block">＋ Nuevo evento</a>
         </div>
       </div>
       <div id="cal-chips" class="flex flex-wrap gap-2"></div>
-      <div class="card overflow-hidden bg-slate-900"><iframe id="cal-frame" title="Calendario" class="w-full block" style="height:70vh;min-height:500px;border:0" loading="lazy"></iframe></div>
-      <p id="cal-help" class="text-xs text-neutral-400 text-center py-2"></p>
-      <div class="card p-5 space-y-3 ad"><h3 class="text-xs font-bold text-neutral-300 uppercase tracking-wider">Configuración del Calendario del Grupo (Admin)</h3>
-        <div class="flex gap-3"><input id="cal-group-input" class="inp" placeholder="ID del calendario, ej. abc123@group.calendar.google.com"><button type="button" onclick="saveGroupCal()" class="bw">Guardar</button></div></div>
+      <div class="card overflow-hidden" style="background:#f8fafc"><iframe id="cal-frame" title="Calendario" class="w-full block" style="height:70vh;min-height:480px;border:0" loading="lazy"></iframe></div>
+      <p id="cal-help" class="text-xs text-neutral-500"></p>
+      <div class="card p-4 space-y-2 ad"><h3 class="text-xs text-neutral-400 uppercase">Calendario del grupo (administrador)</h3>
+        <div class="flex gap-2"><input id="cal-group-input" class="inp" placeholder="ID del calendario, ej. abc123@group.calendar.google.com"><button type="button" onclick="saveGroupCal()" class="bw">Guardar</button></div></div>
     </div>
 
-    <!-- EQUIPO -->
+    <div id="tab-minutes" class="tab hidden space-y-6">
+      <div class="flex justify-between items-center flex-wrap gap-3"><div><h2 class="text-lg font-bold">Actas y decisiones</h2><p class="text-xs text-neutral-400 mt-0.5">Lo que se habló y lo que se acordó: quién, qué y cuándo.</p></div><button type="button" onclick="openMin()" class="bw ed">+ Nueva acta</button></div>
+      <input id="min-search" oninput="renderMinutes()" placeholder="Buscar en actas…" class="inp" style="max-width:22rem">
+      <div id="min-list" class="space-y-4"></div>
+    </div>
+
+    <div id="tab-partners" class="tab hidden space-y-6">
+      <div><h2 class="text-lg font-bold">Socios & Aportes</h2><p class="text-xs text-neutral-400 mt-0.5">Cuánto se comprometió y cuánto ha aportado cada socio.</p></div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="card kpi p-5" style="--k:#34d399"><span class="text-[11px] text-neutral-400 uppercase font-semibold tracking-wider">Total aportado</span><div id="par-total" class="text-2xl font-bold tracking-tight mt-1">0</div></div>
+        <div class="card kpi p-5" style="--k:#7c8cff"><span class="text-[11px] text-neutral-400 uppercase font-semibold tracking-wider">Total comprometido</span><div id="par-commit" class="text-2xl font-bold tracking-tight mt-1">0</div></div>
+        <div class="card kpi p-5" style="--k:#fbbf24"><span class="text-[11px] text-neutral-400 uppercase font-semibold tracking-wider">Cumplimiento global</span><div id="par-pct" class="text-2xl font-bold tracking-tight mt-1">—</div></div>
+      </div>
+      <div class="card overflow-x-auto"><table class="w-full text-left text-xs">
+        <thead class="text-neutral-400 uppercase tracking-wider border-b border-neutral-800"><tr><th class="p-3.5">Socio</th><th class="p-3.5">Comprometido</th><th class="p-3.5">Aportado</th><th class="p-3.5">Pendiente</th><th class="p-3.5 min-w-[10rem]">Participación en el capital aportado</th></tr></thead>
+        <tbody id="par-body" class="divide-y divide-neutral-800"></tbody></table></div>
+      <p class="text-xs text-neutral-500">Para registrar un aporte: en Finanzas crea un <b>ingreso</b> con la categoría <b>Aporte de socio</b> y elige al socio. El porcentaje es informativo (proporción de lo aportado); la participación legal se define en los estatutos.</p>
+    </div>
+
     <div id="tab-members" class="tab hidden space-y-6">
-      <div><h2 class="text-lg font-bold text-white">Gestión del Equipo & Roles</h2><p class="text-xs text-neutral-400 mt-0.5">Control de permisos de acceso (Admin, Editor, Lectura).</p></div>
+      <div><h2 class="text-lg font-bold">Equipo</h2><p class="text-xs text-neutral-500">Las cuentas nuevas entran como "Lectura". Un administrador les asigna su rol.</p></div>
       <div id="members-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </div>
 
-    <!-- AUDITORÍA -->
     <div id="tab-audit" class="tab hidden space-y-6">
-      <div><h2 class="text-lg font-bold text-white">Auditoría del Sistema</h2><p class="text-xs text-neutral-400 mt-0.5">Registro inmutable de transacciones, modificaciones y accesos de seguridad.</p></div>
-      <div class="card p-5"><ul id="audit-list" class="space-y-3 text-xs text-neutral-300 divide-y divide-neutral-800"></ul></div>
+      <div><h2 class="text-lg font-bold">Auditoría</h2><p class="text-xs text-neutral-500">Registrada por el servidor. Últimas 100 acciones.</p></div>
+      <div class="card p-4"><ul id="audit-list" class="space-y-3 text-xs text-neutral-400 divide-y divide-neutral-900"></ul></div>
     </div>
   </section>
 </main>
 </div>
 </div>
 
-<!-- MODAL TRANSACCIÓN -->
+<!-- MODALES -->
 <div id="finModal" class="modal"><div>
   <input type="hidden" id="fin-id">
-  <h3 id="fin-title" class="font-bold text-white uppercase text-sm tracking-wider">Registrar Transacción</h3>
-  <div><label class="lbl">Concepto descriptivo</label><input id="fin-concept" class="inp" placeholder="Ej. Compra de sensores ESP32"></div>
+  <h3 id="fin-title" class="font-semibold uppercase">Registrar Transacción</h3>
+  <div><label class="lbl">Concepto</label><input id="fin-concept" class="inp"></div>
   <div class="grid grid-cols-2 gap-3">
-    <div><label class="lbl">Proyecto asociado</label><select id="fin-project" class="inp"></select></div>
-    <div><label class="lbl">Categoría</label><select id="fin-cat" class="inp"><option>Materiales</option><option>Equipos</option><option>Servicios</option><option>Honorarios</option><option>Transporte</option><option>Comida</option><option>Micro-emprendimientos</option><option>Financiación</option><option selected>Otros</option></select></div>
+    <div><label class="lbl">Proyecto (opcional)</label><select id="fin-project" class="inp"></select></div>
+    <div><label class="lbl">Categoría</label><select id="fin-cat" class="inp" onchange="finCatChange()"><option>Materiales</option><option>Equipos</option><option>Servicios</option><option>Honorarios</option><option>Transporte</option><option>Comida</option><option>Micro-emprendimientos</option><option>Aporte de socio</option><option>Financiación</option><option selected>Otros</option></select></div>
   </div>
   <div class="grid grid-cols-2 gap-3">
     <div><label class="lbl">Tipo</label><select id="fin-type" class="inp"><option value="income">Ingreso (+)</option><option value="expense">Egreso (-)</option></select></div>
-    <div><label class="lbl">Monto</label><input type="number" step="0.01" min="0" id="fin-amount" class="inp" placeholder="0.00"></div>
+    <div><label class="lbl">Monto</label><input type="number" step="0.01" min="0" id="fin-amount" class="inp"></div>
   </div>
+  <div id="fin-partner-wrap" class="hidden"><label class="lbl">Socio que aporta</label><select id="fin-partner" class="inp"></select></div>
   <div><label class="lbl">Fecha</label><input type="date" id="fin-date" class="inp"></div>
-  <div class="mf"><button type="button" onclick="closeModal('finModal')" class="bg">Cancelar</button><button type="button" onclick="saveFinance()" class="bw">Guardar transacción</button></div>
+  <div><label class="lbl">Comprobante (opcional · JPG, PNG, WEBP o PDF, máx. 5 MB)</label><input type="file" id="fin-receipt" accept="image/jpeg,image/png,image/webp,application/pdf" class="inp"><p id="fin-receipt-cur" class="text-[11px] text-neutral-400 mt-1"></p></div>
+  <div class="mf"><button type="button" onclick="closeModal('finModal')" class="bg">Cancelar</button><button type="button" onclick="saveFinance()" class="bw">Guardar</button></div>
 </div></div>
 
-<!-- MODAL PROYECTO -->
 <div id="projModal" class="modal"><div>
   <input type="hidden" id="proj-id">
-  <h3 id="proj-title" class="font-bold text-white uppercase text-sm tracking-wider">Nuevo Proyecto</h3>
-  <div><label class="lbl">Nombre del proyecto</label><input id="proj-name" class="inp" placeholder="Ej. Exobot Prototipo V1"></div>
-  <div><label class="lbl">Descripción técnica</label><textarea id="proj-desc" rows="3" class="inp" placeholder="Objetivos y especificaciones..."></textarea></div>
+  <h3 id="proj-title" class="font-semibold uppercase">Nuevo Proyecto</h3>
+  <div><label class="lbl">Nombre</label><input id="proj-name" class="inp"></div>
+  <div><label class="lbl">Descripción</label><textarea id="proj-desc" rows="3" class="inp"></textarea></div>
   <div class="grid grid-cols-2 gap-3">
     <div><label class="lbl">Categoría</label><select id="proj-category" class="inp"><option>Académico</option><option>Emprendimiento</option><option>Empresa</option><option>Investigación</option></select></div>
-    <div><label class="lbl">Presupuesto límite</label><input type="number" step="0.01" min="0" id="proj-budget" class="inp" placeholder="0.00"></div>
+    <div><label class="lbl">Presupuesto</label><input type="number" step="0.01" min="0" id="proj-budget" class="inp"></div>
   </div>
   <div class="grid grid-cols-2 gap-3">
     <div><label class="lbl">Estado</label><select id="proj-status" class="inp"><option value="todo">Por Hacer</option><option value="in_progress">En Progreso</option><option value="done">Completado</option></select></div>
     <div><label class="lbl">Prioridad</label><select id="proj-prio" class="inp"><option value="alta">Alta</option><option value="media" selected>Media</option><option value="baja">Baja</option></select></div>
   </div>
-  <div><label class="lbl">Fecha límite (Deadline)</label><input type="date" id="proj-due" class="inp"></div>
-  <div class="mf"><button type="button" onclick="closeModal('projModal')" class="bg">Cancelar</button><button type="button" onclick="saveProject()" class="bw">Guardar proyecto</button></div>
+  <div><label class="lbl">Fecha límite (opcional)</label><input type="date" id="proj-due" class="inp"></div>
+  <div class="mf"><button type="button" onclick="closeModal('projModal')" class="bg">Cancelar</button><button type="button" onclick="saveProject()" class="bw">Guardar</button></div>
+</div></div>
+
+<div id="minModal" class="modal"><div>
+  <input type="hidden" id="min-id">
+  <h3 id="min-head" class="font-bold uppercase text-sm tracking-wider">Nueva acta</h3>
+  <div><label class="lbl">Tema de la reunión</label><input id="min-name" class="inp" placeholder="Ej. Definición del tipo de sociedad"></div>
+  <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Fecha</label><input type="date" id="min-date" class="inp"></div><div><label class="lbl">Asistentes</label><input id="min-att" class="inp" placeholder="Ana, Luis, Pedro"></div></div>
+  <div><label class="lbl">Resumen de lo tratado</label><textarea id="min-sum" rows="4" class="inp"></textarea></div>
+  <div><label class="lbl">Decisiones y acuerdos (quién, qué, cuándo)</label><textarea id="min-dec" rows="4" class="inp"></textarea></div>
+  <div class="mf"><button type="button" onclick="closeModal('minModal')" class="bg">Cancelar</button><button type="button" onclick="saveMin()" class="bw">Guardar acta</button></div>
 </div></div>
 
 <div id="toast" class="toast"></div>
 
-<!-- MODAL PERFIL -->
 <div id="profModal" class="modal"><div>
-  <h3 class="font-bold text-white uppercase text-sm tracking-wider">Configuración de Perfil</h3>
-  <div><label class="lbl">Nombre completo</label><input id="prof-name" class="inp"></div>
-  <div><label class="lbl">Nueva contraseña (opcional)</label><input id="prof-pass" type="password" class="inp" placeholder="Dejar en blanco para conservar actual"></div>
-  <div class="pt-2 border-t border-neutral-800"><label class="lbl">ID de tu Google Calendar</label><input id="prof-cal" class="inp" placeholder="tucorreo@gmail.com"></div>
-  <label class="flex items-center gap-2.5 text-neutral-300 text-xs cursor-pointer"><input id="prof-cal-share" type="checkbox" class="accent-indigo-500 w-4 h-4 rounded"> Compartir mi calendario con el equipo de trabajo</label>
-  <div class="mf"><button type="button" onclick="closeModal('profModal')" class="bg">Cancelar</button><button type="button" onclick="saveProfile()" class="bw">Actualizar perfil</button></div>
+  <h3 class="font-semibold uppercase">Mi perfil</h3>
+  <div><label class="lbl">Nombre</label><input id="prof-name" class="inp"></div>
+  <div><label class="lbl">Nueva contraseña (opcional)</label><input id="prof-pass" type="password" class="inp" placeholder="Déjalo vacío para no cambiarla"></div>
+  <div class="pt-2 border-t border-neutral-800"><label class="lbl">Mi Google Calendar (opcional)</label><input id="prof-cal" class="inp" placeholder="tucorreo@gmail.com"></div>
+  <label class="flex items-center gap-2 text-neutral-300"><input id="prof-cal-share" type="checkbox" class="accent-indigo-400"> Mostrar mi calendario al equipo</label>
+  <div class="mf"><button type="button" onclick="closeModal('profModal')" class="bg">Cancelar</button><button type="button" onclick="saveProfile()" class="bw">Guardar</button></div>
 </div></div>
 
-<!-- LÓGICA DE LA APP -->
 <script>
 const STATUS = { todo: 'Por Hacer', in_progress: 'En Progreso', done: 'Completado' };
 const ORDER = ['todo', 'in_progress', 'done'];
 const ROLES = { admin: 'Administrador', editor: 'Editor', lectura: 'Lectura' };
-const TABS = [['dashboard', '📊', 'Dashboard'], ['finances', '💰', 'Finanzas & Caja'], ['projects', '📋', 'Proyectos & Kanban'], ['tasks', '✅', 'Lista de tareas'], ['calendar', '📅', 'Calendario'], ['members', '👥', 'Equipo & Roles'], ['audit', '🕘', 'Auditoría']];
+const TABS = [['dashboard', '📊', 'Dashboard'], ['finances', '💰', 'Finanzas & Caja'], ['projects', '📋', 'Proyectos & Kanban'], ['tasks', '✅', 'Tareas & Ruta'], ['calendar', '📅', 'Calendario'], ['minutes', '📝', 'Actas y decisiones'], ['partners', '🤝', 'Socios & Aportes'], ['members', '👥', 'Equipo & Roles'], ['audit', '🕘', 'Auditoría']];
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const MONEDA = 'COP';
+const MONEDA = 'COP'; // cambia a 'USD', 'EUR', etc.
 const fmt = new Intl.NumberFormat('es-CO', { style: 'currency', currency: MONEDA, maximumFractionDigits: MONEDA === 'COP' ? 0 : 2 });
 const money = n => fmt.format(Number(n || 0));
 const today = () => new Date().toISOString().slice(0, 10);
 
 if (SUPABASE_URL.startsWith('PEGA')) {
-  document.body.innerHTML = '<div class="p-8 text-sm text-amber-400">Falta configurar SUPABASE_URL y SUPABASE_ANON_KEY en index.html.</div>';
+  document.body.innerHTML = '<div class="p-8 text-sm text-amber-400">Falta configurar SUPABASE_URL y SUPABASE_ANON_KEY al inicio de index.html.</div>';
   throw new Error('Supabase sin configurar');
 }
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const S = { projects: [], finances: [], profiles: [], audit_log: [], tasks: [], app_settings: [] };
+const S = { projects: [], finances: [], profiles: [], audit_log: [], tasks: [], app_settings: [], minutes: [] };
 let me = null, chart = null, currentTab = 'dashboard', started = null, signup = false;
 
+/* ---------- Autenticación ---------- */
 function toggleAuth() {
   signup = !signup;
   $('name-wrap').classList.toggle('hidden', !signup);
@@ -292,16 +309,16 @@ function toggleAuth() {
 async function doAuth(e) {
   e.preventDefault();
   const email = $('a-email').value.trim(), password = $('a-pass').value, msg = $('auth-msg');
-  msg.className = 'text-xs text-rose-400 min-h-[1rem] font-medium'; msg.textContent = '';
+  msg.className = 'text-xs text-rose-400 min-h-[1rem]'; msg.textContent = '';
   const { data, error } = signup
     ? await sb.auth.signUp({ email, password, options: { data: { full_name: $('a-name').value.trim() } } })
     : await sb.auth.signInWithPassword({ email, password });
   if (error) { msg.textContent = error.message; return false; }
-  if (signup && !data.session) { msg.className = 'text-xs text-emerald-400 min-h-[1rem] font-medium'; msg.textContent = '¡Cuenta creada! Revisa tu correo electrónico para confirmar.'; }
+  if (signup && !data.session) { msg.className = 'text-xs text-emerald-400 min-h-[1rem]'; msg.textContent = 'Revisa tu correo para confirmar la cuenta.'; }
   return false;
 }
 sb.auth.onAuthStateChange((_ev, session) => {
-  setTimeout(() => session ? start(session.user) : stop(), 0);
+  setTimeout(() => session ? start(session.user) : stop(), 0); // evita bloqueos dentro del callback
 });
 
 async function start(user) {
@@ -312,15 +329,15 @@ async function start(user) {
     ({ data: prof } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle());
     if (!prof) await new Promise(r => setTimeout(r, 400));
   }
-  if (!prof) { $('auth-msg').textContent = 'No se encontró tu perfil. ¿Ejecutaste el script SQL completo?'; started = null; return; }
+  if (!prof) { $('auth-msg').textContent = 'No se encontró tu perfil. ¿Ejecutaste schema.sql?'; started = null; return; }
   me = prof;
   document.body.classList.toggle('r-edit', ['admin', 'editor'].includes(me.role));
   document.body.classList.toggle('r-admin', me.role === 'admin');
-  $('who').textContent = (me.full_name || me.email) + ' · ' + ROLES[me.role];
+  $('who').textContent = `${me.full_name || me.email} · ${ROLES[me.role]}`;
   $('auth').classList.add('hidden'); $('app').classList.remove('hidden');
   renderNav();
   await Promise.all(Object.keys(S).map(load));
-  const ch = sb.channel('biomedical_live');
+  const ch = sb.channel('nexus');
   Object.keys(S).forEach(t => ch.on('postgres_changes', { event: '*', schema: 'public', table: t }, () => load(t)));
   ch.subscribe();
   window._ch = ch;
@@ -332,13 +349,15 @@ function stop() {
   $('app').classList.add('hidden'); $('auth').classList.remove('hidden');
 }
 
+/* ---------- Datos ---------- */
 const ORDERBY = {
   projects: q => q.order('created_at'),
   finances: q => q.order('date', { ascending: false }),
   profiles: q => q.order('created_at'),
   audit_log: q => q.order('created_at', { ascending: false }).limit(100),
   tasks: q => q.order('created_at'),
-  app_settings: q => q.order('key')
+  app_settings: q => q.order('key'),
+  minutes: q => q.order('meeting_date', { ascending: false })
 };
 async function load(t) {
   const { data, error } = await ORDERBY[t](sb.from(t).select('*'));
@@ -347,11 +366,11 @@ async function load(t) {
   if (t === 'profiles') { const m = data.find(p => p.id === me?.id); if (m && m.role !== me.role) start2(m); }
   renderAll();
 }
-function start2(m) {
+function start2(m) { // si un admin cambia tu rol, la interfaz se actualiza al instante
   me = m;
   document.body.classList.toggle('r-edit', ['admin', 'editor'].includes(m.role));
   document.body.classList.toggle('r-admin', m.role === 'admin');
-  $('who').textContent = (m.full_name || m.email) + ' · ' + ROLES[m.role];
+  $('who').textContent = `${m.full_name || m.email} · ${ROLES[m.role]}`;
 }
 function toast(msg, err) {
   const d = document.createElement('div'); d.textContent = msg; if (err) d.className = 'err';
@@ -359,19 +378,30 @@ function toast(msg, err) {
 }
 async function q(promise, ok) {
   const { error } = await promise;
-  if (error) toast('Error en operación: ' + error.message, true); else if (ok) toast(ok);
+  if (error) toast('No se pudo completar: ' + error.message, true); else if (ok) toast(ok);
   return !error;
 }
 const projName = id => (S.projects.find(p => p.id === id) || {}).name || 'Fondo General';
-const PRIO = { alta: 'border-rose-500/40 text-rose-400 bg-rose-500/10', media: 'border-amber-500/40 text-amber-400 bg-amber-500/10', baja: 'border-slate-700 text-slate-400 bg-slate-800/50' };
-const PAL = ['#6366f1', '#34d399', '#38bdf8', '#fbbf24', '#f43f5e', '#a855f7', '#2dd4bf', '#fb923c', '#e879f9'];
+const PRIO = { alta: 'border-rose-800 text-rose-400', media: 'border-amber-800 text-amber-400', baja: 'border-neutral-700 text-neutral-400' };
+const PAL = ['#818cf8', '#34d399', '#38bdf8', '#fbbf24', '#fb7185', '#a78bfa', '#2dd4bf', '#fb923c', '#e879f9'];
 let chart2 = null;
 document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal.open').forEach(m => m.classList.remove('open')); });
 
+const pName = id => { const p = S.profiles.find(x => x.id === id); return p ? (p.full_name || p.email) : ''; };
+function themeColors() { const c = getComputedStyle(document.documentElement), g = k => c.getPropertyValue(k).trim(); return { grid: g('--grid'), tick: g('--tick'), surface: g('--surface') }; }
+function toggleTheme() {
+  const t = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem('theme', t); } catch (e) {}
+  $('theme-btn').textContent = t === 'light' ? '🌙' : '☀️';
+  if (currentTab === 'dashboard') renderChart();
+}
+/* ---------- Navegación y modales ---------- */
 function renderNav() {
   $('nav').innerHTML = TABS.map(([id, ic, lb]) =>
-    '<button type="button" onclick="switchTab(\'' + id + '\')" title="' + lb + '" class="nb ' + (id === currentTab ? 'act' : '') + '"><span class="ic">' + ic + '</span><span class="lt">' + lb + '</span></button>').join('');
+    `<button type="button" onclick="switchTab('${id}')" title="${lb}" class="nb ${id === currentTab ? 'act' : ''}"><span class="ic">${ic}</span><span class="lt">${lb}</span></button>`).join('');
   const t = TABS.find(x => x[0] === currentTab); if (t) $('page-title').textContent = t[2];
+  $('theme-btn').textContent = document.documentElement.dataset.theme === 'light' ? '🌙' : '☀️';
 }
 function toggleSide(force) {
   if (window.innerWidth >= 1024) {
@@ -397,14 +427,15 @@ function switchTab(t) {
 }
 const openModal = id => $(id).classList.add('open');
 const closeModal = id => $(id).classList.remove('open');
-
 function openFin(id) {
   const f = S.finances.find(x => x.id === id) || {};
   $('fin-id').value = f.id || ''; $('fin-title').textContent = f.id ? 'Editar Transacción' : 'Registrar Transacción';
   $('fin-concept').value = f.concept || ''; $('fin-amount').value = f.amount ?? ''; $('fin-type').value = f.type || 'income';
   $('fin-date').value = f.date || today(); $('fin-cat').value = f.category || 'Otros';
-  $('fin-project').innerHTML = '<option value="">-- Ninguno (Fondo General) --</option>' + S.projects.map(p => '<option value="' + esc(p.id) + '">' + esc(p.name) + '</option>').join('');
+  $('fin-project').innerHTML = '<option value="">-- Ninguno (Fondo General) --</option>' + S.projects.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
   $('fin-project').value = f.project_id || '';
+  $('fin-partner').innerHTML = '<option value="">— Selecciona —</option>' + S.profiles.map(p => `<option value="${esc(p.id)}">${esc(p.full_name || p.email)}</option>`).join('');
+  $('fin-partner').value = f.partner_id || ''; $('fin-receipt').value = ''; $('fin-receipt-cur').textContent = f.receipt_path ? 'Ya tiene un comprobante adjunto (si subes otro, lo reemplaza).' : ''; finCatChange();
   openModal('finModal');
 }
 function openProj(id) {
@@ -416,16 +447,38 @@ function openProj(id) {
   openModal('projModal');
 }
 
+/* ---------- Acciones ---------- */
+function finCatChange() {
+  const a = $('fin-cat').value === 'Aporte de socio';
+  $('fin-partner-wrap').classList.toggle('hidden', !a);
+  if (a) $('fin-type').value = 'income';
+}
 async function saveFinance() {
-  const id = $('fin-id').value, concept = $('fin-concept').value.trim(), raw = $('fin-amount').value, amount = Number(raw);
-  if (!concept || raw === '' || isNaN(amount) || amount < 0) return toast('Indica un concepto y monto válido.', true);
-  const row = { concept, project_id: $('fin-project').value || null, type: $('fin-type').value, amount, date: $('fin-date').value || today(), category: $('fin-cat').value };
+  const id = $('fin-id').value, concept = $('fin-concept').value.trim(), raw = $('fin-amount').value, amount = Number(raw), cat = $('fin-cat').value, file = $('fin-receipt').files[0];
+  if (!concept || raw === '' || isNaN(amount) || amount < 0) return toast('Ingresa un concepto y un monto válido.', true);
+  if (cat === 'Aporte de socio' && !$('fin-partner').value) return toast('Selecciona al socio que hizo el aporte.', true);
+  if (file && file.size > 5 * 1024 * 1024) return toast('El comprobante supera los 5 MB.', true);
+  if (file && !/\.(jpe?g|png|webp|pdf)$/i.test(file.name)) return toast('Formato no permitido: usa JPG, PNG, WEBP o PDF.', true);
+  const row = { concept, project_id: $('fin-project').value || null, type: $('fin-type').value, amount, date: $('fin-date').value || today(), category: cat, partner_id: cat === 'Aporte de socio' ? $('fin-partner').value : null };
+  if (file) {
+    const path = crypto.randomUUID() + '.' + file.name.split('.').pop().toLowerCase();
+    const { error } = await sb.storage.from('receipts').upload(path, file, { contentType: file.type });
+    if (error) return toast('No se pudo subir el comprobante: ' + error.message, true);
+    row.receipt_path = path;
+  }
   const req = id ? sb.from('finances').update(row).eq('id', id) : sb.from('finances').insert(row);
   if (await q(req, id ? 'Transacción actualizada' : 'Transacción registrada')) closeModal('finModal');
 }
+async function openReceipt(id) {
+  const f = S.finances.find(x => x.id === id); if (!f || !f.receipt_path) return;
+  const w = window.open('about:blank', '_blank');
+  const { data, error } = await sb.storage.from('receipts').createSignedUrl(f.receipt_path, 120);
+  if (error) { if (w) w.close(); return toast('No se pudo abrir el comprobante: ' + error.message, true); }
+  if (w) { w.opener = null; w.location.href = data.signedUrl; } else toast('Tu navegador bloqueó la ventana emergente.', true);
+}
 async function saveProject() {
   const id = $('proj-id').value, name = $('proj-name').value.trim();
-  if (!name) return toast('Ingresa el nombre del proyecto.', true);
+  if (!name) return toast('Ingresa un nombre para el proyecto.', true);
   const row = { name, category: $('proj-category').value, budget: Number($('proj-budget').value || 0), status: $('proj-status').value,
     priority: $('proj-prio').value, due_date: $('proj-due').value || null, description: $('proj-desc').value.trim() || null };
   const req = id ? sb.from('projects').update(row).eq('id', id) : sb.from('projects').insert(row);
@@ -439,7 +492,7 @@ async function moveProject(id, dir) {
   if (i >= 0 && i < 3) await q(sb.from('projects').update({ status: ORDER[i] }).eq('id', id));
 }
 async function setRole(id, role) {
-  if (!confirm('¿Cambiar rol a ' + ROLES[role] + '?')) return renderMembers();
+  if (!confirm(`¿Cambiar el rol a ${ROLES[role]}?`)) return renderMembers();
   await q(sb.from('profiles').update({ role }).eq('id', id));
   renderMembers();
 }
@@ -447,40 +500,40 @@ async function setRole(id, role) {
 function openProfile() { $('prof-cal').value = me.calendar_id || ''; $('prof-cal-share').checked = !!me.calendar_shared; $('prof-name').value = me.full_name || ''; $('prof-pass').value = ''; openModal('profModal'); }
 async function saveProfile() {
   const name = $('prof-name').value.trim(), pass = $('prof-pass').value, cal = $('prof-cal').value.trim(), share = $('prof-cal-share').checked;
-  if (cal && !/^[\w.\-+@%]+$/.test(cal)) return alert('ID de calendario inválido.');
+  if (cal && !/^[\w.\-+@%]+$/.test(cal)) return alert('El ID del calendario no es válido.');
   if (!name) return alert('Escribe tu nombre.');
   if (pass && pass.length < 6) return alert('La contraseña debe tener al menos 6 caracteres.');
   if (!(await q(sb.from('profiles').update({ full_name: name, calendar_id: cal || null, calendar_shared: share && !!cal }).eq('id', me.id)))) return;
   if (pass) {
     const { error } = await sb.auth.updateUser({ password: pass });
-    if (error) return alert('Error al cambiar contraseña: ' + error.message);
+    if (error) return alert('No se pudo cambiar la contraseña: ' + error.message);
   }
-  me.full_name = name; me.calendar_id = cal || null; me.calendar_shared = share && !!cal; $('who').textContent = name + ' · ' + ROLES[me.role];
-  closeModal('profModal'); toast('Perfil actualizado correctamente');
+  me.full_name = name; me.calendar_id = cal || null; me.calendar_shared = share && !!cal; $('who').textContent = `${name} · ${ROLES[me.role]}`;
+  closeModal('profModal'); alert('Perfil actualizado.');
 }
 async function renameMember(id) {
   const m = S.profiles.find(x => x.id === id);
-  const n = prompt('Nuevo nombre para el integrante:', m.full_name || '');
+  const n = prompt('Nombre del integrante:', m.full_name || '');
   if (n && n.trim()) await q(sb.from('profiles').update({ full_name: n.trim() }).eq('id', id));
 }
 
+/* ---------- Render ---------- */
 function renderFinances() {
   const t = ($('fin-search')?.value || '').toLowerCase(), ty = $('fin-filter')?.value || '';
   const list = S.finances.filter(f => (!ty || f.type === ty) && (!t || [f.concept, f.category, projName(f.project_id)].join(' ').toLowerCase().includes(t)));
   let net = 0;
   const rows = list.map(f => {
     const isInc = f.type === 'income'; net += isInc ? Number(f.amount) : -Number(f.amount);
-    return '<tr class="hover:bg-neutral-900/40 transition-colors"><td class="p-3.5 text-neutral-400 whitespace-nowrap">' + esc(f.date) + '</td><td class="p-3.5 font-medium text-white">' + esc(f.concept) + '</td>' +
-      '<td class="p-3.5"><span class="tag">' + esc(f.category || 'Otros') + '</span></td>' +
-      '<td class="p-3.5 text-neutral-400 text-xs">' + esc(projName(f.project_id)) + '</td>' +
-      '<td class="p-3.5"><span class="tag ' + (isInc ? 'border-emerald-500/40 text-emerald-400 bg-emerald-500/10' : 'border-rose-500/40 text-rose-400 bg-rose-500/10') + '">' + (isInc ? 'Ingreso' : 'Egreso') + '</span></td>' +
-      '<td class="p-3.5 font-bold whitespace-nowrap ' + (isInc ? 'text-emerald-400' : 'text-rose-400') + '">' + money(f.amount) + '</td>' +
-      '<td class="p-3.5 text-right whitespace-nowrap"><button type="button" onclick="openFin(\'' + esc(f.id) + '\')" class="ed text-neutral-400 hover:text-white mr-3">✎</button><button type="button" onclick="deleteFinance(\'' + esc(f.id) + '\')" class="ad text-neutral-500 hover:text-rose-400">🗑</button></td></tr>';
+    return `<tr class="hover:bg-neutral-900/40"><td class="p-3 text-neutral-500 whitespace-nowrap">${esc(f.date)}</td><td class="p-3 font-medium text-white">${esc(f.concept)}${f.partner_id ? ' <span class="text-neutral-400 font-normal">· ' + esc(pName(f.partner_id)) + '</span>' : ''}</td>
+      <td class="p-3"><span class="tag text-neutral-400">${esc(f.category || 'Otros')}</span></td>
+      <td class="p-3 text-neutral-400 text-[11px]">${esc(projName(f.project_id))}</td>
+      <td class="p-3"><span class="tag ${isInc ? 'border-emerald-800 text-emerald-400' : 'border-rose-800 text-rose-400'}">${isInc ? 'Ingreso' : 'Egreso'}</span></td>
+      <td class="p-3 font-semibold whitespace-nowrap ${isInc ? 'text-emerald-400' : 'text-rose-400'}">${money(f.amount)}</td>
+      <td class="p-3 text-right whitespace-nowrap">${f.receipt_path ? `<button type="button" onclick="openReceipt('${esc(f.id)}')" class="text-neutral-400 hover:text-white mr-2" title="Ver comprobante">📎</button>` : ''}<button type="button" onclick="openFin('${esc(f.id)}')" class="ed text-neutral-500 hover:text-white mr-2">✎</button><button type="button" onclick="deleteFinance('${esc(f.id)}')" class="ad text-neutral-600 hover:text-rose-400">🗑</button></td></tr>`;
   });
-  $('fin-body').innerHTML = rows.join('') || '<tr><td colspan="7" class="p-8 text-center text-neutral-500">No hay transacciones registradas.</td></tr>';
-  $('fin-total').textContent = list.length + ' movimientos · Neto: ' + money(net);
+  $('fin-body').innerHTML = rows.join('') || '<tr><td colspan="7" class="p-6 text-center text-neutral-600">Sin movimientos para mostrar.</td></tr>';
+  $('fin-total').textContent = `${list.length} movimientos · neto ${money(net)}`;
 }
-
 function renderProjects() {
   const t = ($('proj-search')?.value || '').toLowerCase(), cols = { todo: '', in_progress: '', done: '' }, n = { todo: 0, in_progress: 0, done: 0 };
   S.projects.filter(p => !t || [p.name, p.description, p.category].join(' ').toLowerCase().includes(t)).forEach(p => {
@@ -488,101 +541,110 @@ function renderProjects() {
     const spent = S.finances.filter(f => f.project_id === p.id && f.type === 'expense').reduce((s, f) => s + Number(f.amount), 0);
     const b = Number(p.budget), over = b > 0 && spent > b, pct = b > 0 ? Math.min(100, spent / b * 100) : 0;
     const late = p.due_date && st !== 'done' && p.due_date < today(), i = ORDER.indexOf(st);
-    cols[st] += '<div class="bg-neutral-900/60 border border-neutral-800 p-4 rounded-xl space-y-3 shadow-sm hover:border-slate-700 transition-all">' +
-      '<div class="flex justify-between items-start gap-2"><h4 class="font-bold text-xs text-white leading-snug">' + esc(p.name) + '</h4>' +
-        '<span class="flex gap-2 text-xs"><button type="button" onclick="openProj(\'' + esc(p.id) + '\')" class="ed text-neutral-400 hover:text-white">✎</button><button type="button" onclick="deleteProject(\'' + esc(p.id) + '\')" class="ad text-neutral-500 hover:text-rose-400">✕</button></span></div>' +
-      (p.description ? '<p class="text-xs text-neutral-400 line-clamp-2">' + esc(p.description) + '</p>' : '') +
-      '<div class="flex flex-wrap gap-1.5"><span class="tag">' + esc(p.category) + '</span><span class="tag ' + (PRIO[p.priority] || PRIO.media) + '">' + esc(p.priority || 'media') + '</span>' + (p.due_date ? '<span class="tag ' + (late ? 'border-rose-500/40 text-rose-400 bg-rose-500/15 font-semibold' : '') + '">📅 ' + esc(p.due_date) + '</span>' : '') + '</div>' +
-      '<div class="space-y-1"><div class="flex justify-between text-[11px] text-neutral-400"><span>Ejecutado: ' + money(spent) + '</span><span class="' + (over ? 'text-rose-400 font-bold' : '') + '">' + (b > 0 ? 'Presupuesto: ' + money(b) : 'Sin presupuesto') + '</span></div><div class="bar ' + (over ? 'over' : '') + '"><i style="width:' + pct + '%"></i></div></div>' +
-      '<div class="ed pt-2 border-t border-neutral-800/80 flex justify-between text-xs">' +
-        (i > 0 ? '<button type="button" onclick="moveProject(\'' + esc(p.id) + '\',-1)" class="text-neutral-400 hover:text-white flex items-center gap-1">‹ ' + STATUS[ORDER[i - 1]] + '</button>' : '<span></span>') +
-        (i < 2 ? '<button type="button" onclick="moveProject(\'' + esc(p.id) + '\',1)" class="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1">' + STATUS[ORDER[i + 1]] + ' ›</button>' : '') + '</div></div>';
+    cols[st] += `<div class="bg-neutral-900/60 border border-neutral-800 p-3 rounded-lg space-y-2">
+      <div class="flex justify-between items-start gap-2"><h4 class="font-medium text-xs text-white">${esc(p.name)}</h4>
+        <span class="flex gap-2 text-[11px]"><button type="button" onclick="openProj('${esc(p.id)}')" class="ed text-neutral-500 hover:text-white">✎</button><button type="button" onclick="deleteProject('${esc(p.id)}')" class="ad text-neutral-600 hover:text-rose-400">✕</button></span></div>
+      ${p.description ? `<p class="text-[11px] text-neutral-500 line-clamp-2">${esc(p.description)}</p>` : ''}
+      <div class="flex flex-wrap gap-1.5"><span class="tag text-neutral-400">${esc(p.category)}</span><span class="tag ${PRIO[p.priority] || PRIO.media}">${esc(p.priority || 'media')}</span>${p.due_date ? `<span class="tag ${late ? 'border-rose-800 text-rose-400' : 'text-neutral-400'}">📅 ${esc(p.due_date)}</span>` : ''}</div>
+      <div><div class="flex justify-between text-[10px] text-neutral-400 mb-1"><span>${money(spent)} / ${money(b)}</span><span class="${over ? 'text-rose-400' : ''}">${b > 0 ? Math.round(spent / b * 100) + '%' : '—'}</span></div><div class="bar ${over ? 'over' : ''}"><i style="width:${pct}%"></i></div></div>
+      <div class="ed pt-2 border-t border-neutral-800 flex justify-between text-[10px]">
+        ${i > 0 ? `<button type="button" onclick="moveProject('${esc(p.id)}',-1)" class="text-neutral-500 hover:text-white">‹ ${STATUS[ORDER[i - 1]]}</button>` : '<span></span>'}
+        ${i < 2 ? `<button type="button" onclick="moveProject('${esc(p.id)}',1)" class="text-neutral-400 hover:text-white font-medium">${STATUS[ORDER[i + 1]]} ›</button>` : ''}</div></div>`;
   });
-  ORDER.forEach(s => { $('col-' + s).innerHTML = cols[s] || '<p class="text-xs text-neutral-600 text-center py-8">Sin proyectos en esta fase</p>'; $('count-' + s).textContent = n[s]; });
+  ORDER.forEach(s => { $('col-' + s).innerHTML = cols[s] || '<p class="text-[11px] text-neutral-600 text-center py-6">Sin proyectos</p>'; $('count-' + s).textContent = n[s]; });
 }
-
 function renderMembers() {
   const isAdmin = me && me.role === 'admin';
-  $('members-grid').innerHTML = S.profiles.map(m => '<div class="card p-5 flex justify-between items-center gap-4">' +
-    '<div class="space-y-1 min-w-0"><h4 class="font-bold text-xs text-white flex items-center gap-2">' + esc(m.full_name || m.email) + (m.id === me?.id ? ' <span class="text-indigo-400 text-[10px] font-normal">(tú)</span>' : '') + (isAdmin ? '<button type="button" onclick="renameMember(\'' + esc(m.id) + '\')" class="text-neutral-500 hover:text-white ml-1">✎</button>' : '') + '</h4><p class="text-xs text-neutral-400 truncate">✉ ' + esc(m.email) + '</p></div>' +
-    (isAdmin && m.id !== me.id
-      ? '<select onchange="setRole(\'' + esc(m.id) + '\',this.value)" class="inp" style="width:auto">' + Object.entries(ROLES).map(([k, v]) => '<option value="' + k + '" ' + (m.role === k ? 'selected' : '') + '>' + v + '</option>').join('') + '</select>'
-      : '<span class="tag font-semibold">' + (ROLES[m.role] || esc(m.role)) + '</span>') +
-  '</div>').join('');
+  $('members-grid').innerHTML = S.profiles.map(m => `<div class="card p-4 flex justify-between items-center gap-3">
+    <div class="space-y-1 min-w-0"><h4 class="font-semibold text-xs text-white">${esc(m.full_name || m.email)}${m.id === me?.id ? ' <span class="text-neutral-500">(tú)</span>' : ''}${isAdmin ? `<button type="button" onclick="renameMember('${esc(m.id)}')" class="text-neutral-500 hover:text-white ml-1">✎</button>` : ''}</h4><p class="text-[11px] text-neutral-500 truncate">✉ ${esc(m.email)}</p></div>
+    ${isAdmin && m.id !== me.id
+      ? `<select onchange="setRole('${esc(m.id)}',this.value)" class="inp" style="width:auto">${Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${m.role === k ? 'selected' : ''}>${v}</option>`).join('')}</select>`
+      : `<span class="text-[10px] bg-neutral-900 text-neutral-300 border border-neutral-800 px-2 py-0.5 rounded-full">${ROLES[m.role] || esc(m.role)}</span>`}
+  </div>`).join('');
 }
-
 function renderAudit() {
-  $('audit-list').innerHTML = S.audit_log.map(a => '<li class="pt-3 flex justify-between items-center gap-4"><div><span class="text-white font-medium">' + esc(a.action) + '</span><span class="text-[11px] text-neutral-400 block mt-0.5">Responsable: ' + esc(a.user_name || 'Sistema') + '</span></div><span class="text-[11px] font-mono text-neutral-400 whitespace-nowrap bg-neutral-900 px-2.5 py-1 rounded-md border border-neutral-800">' + new Date(a.created_at).toLocaleString() + '</span></li>').join('') || '<li class="text-neutral-500 text-center py-4">Sin registros de auditoría.</li>';
+  $('audit-list').innerHTML = S.audit_log.map(a => `<li class="pt-2 flex justify-between items-center gap-3"><div><span class="text-white font-medium">${esc(a.action)}</span><span class="text-[10px] text-neutral-600 block">Por ${esc(a.user_name || 'Sistema')}</span></div><span class="text-[10px] font-mono text-neutral-500 whitespace-nowrap">${new Date(a.created_at).toLocaleString()}</span></li>`).join('') || '<li class="text-neutral-600">Sin actividad todavía.</li>';
 }
-
 function renderDashboard() {
   let inc = 0, exp = 0, ni = 0, ne = 0;
   S.finances.forEach(f => { if (f.type === 'income') { inc += Number(f.amount); ni++; } else { exp += Number(f.amount); ne++; } });
   const bal = inc - exp, act = S.projects.filter(p => p.status === 'in_progress').length, done = S.projects.filter(p => p.status === 'done').length;
   $('greet').textContent = 'Bienvenido de vuelta, ' + String(me.full_name || me.email).split(' ')[0] + ' ⚕️';
-  $('kpi-balance').textContent = money(bal); $('kpi-balance').className = 'text-2xl font-bold tracking-tight mt-1 ' + (bal < 0 ? 'text-rose-400' : 'text-white');
-  $('kpi-balance-sub').textContent = inc > 0 ? 'Margen operativo ' + Math.round(bal / inc * 100) + '%' : 'Sin ingresos registrados';
-  $('kpi-income').textContent = money(inc); $('kpi-income-sub').textContent = ni + ' transacciones';
-  $('kpi-expense').textContent = money(exp); $('kpi-expense-sub').textContent = ne + ' transacciones';
-  $('kpi-projects').textContent = S.projects.length; $('kpi-projects-sub').textContent = act + ' activos · ' + done + ' completados';
-  
+  $('kpi-balance').textContent = money(bal); $('kpi-balance').className = 'text-2xl font-bold tracking-tight mt-1 ' + (bal < 0 ? 'text-rose-400' : '');
+  $('kpi-balance-sub').textContent = inc > 0 ? `Margen ${Math.round(bal / inc * 100)}%` : 'Sin ingresos aún';
+  $('kpi-income').textContent = money(inc); $('kpi-income-sub').textContent = `${ni} movimientos`;
+  $('kpi-expense').textContent = money(exp); $('kpi-expense-sub').textContent = `${ne} movimientos`;
+  $('kpi-projects').textContent = S.projects.length; $('kpi-projects-sub').textContent = `${act} en progreso · ${done} completados`;
   const al = [];
   S.projects.forEach(p => {
     if (p.status === 'done') return;
     const spent = S.finances.filter(f => f.project_id === p.id && f.type === 'expense').reduce((s, f) => s + Number(f.amount), 0);
-    if (Number(p.budget) > 0 && spent > Number(p.budget)) al.push(['rose', '⚠️ Proyecto “' + p.name + '” excedió su presupuesto (' + money(spent) + ' / ' + money(p.budget) + ')']);
+    if (Number(p.budget) > 0 && spent > Number(p.budget)) al.push(['rose', `“${p.name}” superó su presupuesto (${money(spent)} de ${money(p.budget)})`]);
     if (p.due_date) {
       const d = Math.ceil((new Date(p.due_date) - new Date(today())) / 864e5);
-      if (d < 0) al.push(['rose', '🚨 Proyecto “' + p.name + '” vencido hace ' + (-d) + ' día(s)']);
-      else if (d <= 7) al.push(['amber', '⏳ Proyecto “' + p.name + '” vence en ' + d + ' día(s)']);
+      if (d < 0) al.push(['rose', `“${p.name}” está vencido hace ${-d} día(s)`]);
+      else if (d <= 7) al.push(['amber', `“${p.name}” vence en ${d} día(s)`]);
     }
   });
-  $('alerts').innerHTML = al.map(([c, m]) => '<li class="flex gap-2.5 p-3 rounded-lg border ' + (c === 'rose' ? 'border-rose-500/30 bg-rose-500/10 text-rose-300' : 'border-amber-500/30 bg-amber-500/10 text-amber-300') + ' font-medium"><span>•</span><span>' + esc(m) + '</span></li>').join('') || '<li class="p-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 font-medium">✓ Sistema óptimo: Sin alertas críticas pendientes.</li>';
-  $('recent').innerHTML = S.audit_log.slice(0, 5).map(a => '<li class="flex justify-between gap-4 pt-2"><span class="text-neutral-200">' + esc(a.action) + ' <span class="text-neutral-400">· ' + esc(a.user_name || 'Sistema') + '</span></span><span class="text-[11px] font-mono text-neutral-400 whitespace-nowrap">' + new Date(a.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + '</span></li>').join('') || '<li class="text-neutral-500">Sin actividad reciente.</li>';
+  $('alerts').innerHTML = al.map(([c, m]) => `<li class="flex gap-2 ${c === 'rose' ? 'text-rose-400' : 'text-amber-400'}"><span>●</span><span>${esc(m)}</span></li>`).join('') || '<li class="text-emerald-400">✓ Todo en orden: sin alertas.</li>';
+  $('recent').innerHTML = S.audit_log.slice(0, 6).map(a => `<li class="flex justify-between gap-3"><span class="text-neutral-300">${esc(a.action)} <span class="text-neutral-600">· ${esc(a.user_name || 'Sistema')}</span></span><span class="text-[10px] font-mono text-neutral-600 whitespace-nowrap">${new Date(a.created_at).toLocaleString('es-CO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</span></li>`).join('') || '<li class="text-neutral-600">Sin actividad todavía.</li>';
 }
-
 function renderChart() {
   if (typeof Chart === 'undefined') return;
-  const by = {}, cat = {};
+  const T = themeColors(), by = {}, cat = {};
   S.finances.forEach(f => {
     const m = String(f.date).slice(0, 7); by[m] = by[m] || { income: 0, expense: 0 }; by[m][f.type] += Number(f.amount);
     if (f.type === 'expense') { const c = f.category || 'Otros'; cat[c] = (cat[c] || 0) + Number(f.amount); }
   });
-  const labels = Object.keys(by).sort(), ck = Object.keys(cat), ax = { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } };
+  const labels = Object.keys(by).sort(), ck = Object.keys(cat), ax = { grid: { color: T.grid }, ticks: { color: T.tick } };
   [chart, chart2].forEach(c => c && c.destroy());
   chart = new Chart($('chart').getContext('2d'), { type: 'bar',
-    data: { labels, datasets: [{ label: 'Ingresos', data: labels.map(l => by[l].income), backgroundColor: '#34d399', borderRadius: 6 }, { label: 'Egresos', data: labels.map(l => by[l].expense), backgroundColor: '#f43f5e', borderRadius: 6 }] },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1' } } }, scales: { x: ax, y: ax } } });
+    data: { labels, datasets: [{ label: 'Ingresos', data: labels.map(l => by[l].income), backgroundColor: '#34d399', borderRadius: 6 }, { label: 'Egresos', data: labels.map(l => by[l].expense), backgroundColor: '#fb7185', borderRadius: 6 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: T.tick } } }, scales: { x: ax, y: ax } } });
   chart2 = new Chart($('chart2').getContext('2d'), { type: 'doughnut',
-    data: { labels: ck, datasets: [{ data: ck.map(k => cat[k]), backgroundColor: PAL, borderColor: '#0f172a', borderWidth: 2 }] },
-    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { color: '#cbd5e1', boxWidth: 12, font: { size: 11 } } } } } });
+    data: { labels: ck, datasets: [{ data: ck.map(k => cat[k]), backgroundColor: PAL, borderColor: T.surface }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { color: T.tick, boxWidth: 10 } } } } });
 }
-
 function renderAll() {
   if (!me) return;
-  renderFinances(); renderProjects(); paintUser(); renderMembers(); renderAudit(); renderDashboard(); renderTasks(); renderCalendar();
+  renderFinances(); renderProjects(); paintUser(); renderMembers(); renderAudit(); renderDashboard(); renderTasks(); renderCalendar(); renderMinutes(); renderPartners();
   if (currentTab === 'dashboard') renderChart();
 }
-
+let taskSection = 'general';
+const SEED = ['Definir socios, porcentajes de participación y aportes', 'Elegir el tipo de sociedad (p. ej. S.A.S.)', 'Verificar disponibilidad del nombre y de la marca', 'Redactar los estatutos o documento de constitución', 'Registrar la sociedad en la Cámara de Comercio', 'Obtener el RUT y el NIT ante la DIAN', 'Abrir la cuenta bancaria de la empresa', 'Definir contabilidad, libros e impuestos con un contador', 'Habilitar la facturación electrónica', 'Revisar permisos o registros regulatorios del producto (p. ej. INVIMA, si aplica)'];
+function setTaskSection(s) { taskSection = s; renderTasks(); }
 function renderTasks() {
-  const ce = ['admin', 'editor'].includes(me.role);
-  const who = id => { const p = S.profiles.find(x => x.id === id); return p ? (p.full_name || p.email) : ''; };
-  const row = t => '<li class="flex items-center gap-3 px-3 py-3"><input type="checkbox" ' + (t.done ? 'checked' : '') + ' ' + (ce ? '' : 'disabled') + ' onchange="toggleTask(\'' + esc(t.id) + '\',this.checked)" class="w-4 h-4 accent-indigo-500 rounded cursor-pointer shrink-0">' +
-    '<span class="flex-1 text-xs ' + (t.done ? 'line-through text-neutral-500' : 'text-neutral-200') + ' font-medium">' + esc(t.title) + '</span>' +
-    '<span class="text-[11px] text-neutral-400 hidden sm:inline">' + esc(who(t.created_by)) + '</span>' +
-    '<button type="button" onclick="deleteTask(\'' + esc(t.id) + '\')" class="ed text-neutral-500 hover:text-rose-400 text-xs">✕</button></li>';
-  const pend = S.tasks.filter(t => !t.done);
-  const done = S.tasks.filter(t => t.done).sort((a, b) => String(b.done_at || '').localeCompare(String(a.done_at || '')));
-  $('task-pending').innerHTML = pend.map(row).join('') || '<li class="p-6 text-center text-xs text-neutral-500">No hay tareas pendientes. ¡Todo al día! 🎉</li>';
-  $('task-done').innerHTML = done.map(row).join('') || '<li class="p-6 text-center text-xs text-neutral-500">Aún no hay tareas completadas.</li>';
-  $('task-count').textContent = pend.length + ' pendientes · ' + done.length + ' completadas';
-  $('task-bar').style.width = (S.tasks.length ? Math.round(done.length / S.tasks.length * 100) : 0) + '%';
+  const ce = ['admin', 'editor'].includes(me.role), mine = $('task-mine').checked, ruta = taskSection === 'constitucion';
+  const all = S.tasks.filter(t => (t.section || 'general') === taskSection), list = all.filter(t => !mine || t.assigned_to === me.id);
+  const wv = $('task-who').value, pv = $('task-proj').value;
+  $('task-who').innerHTML = '<option value="">Sin responsable</option>' + S.profiles.map(p => `<option value="${esc(p.id)}">${esc(p.full_name || p.email)}</option>`).join(''); $('task-who').value = wv;
+  $('task-proj').innerHTML = '<option value="">Sin proyecto</option>' + S.projects.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join(''); $('task-proj').value = pv;
+  $('seg-general').className = 'seg-b' + (ruta ? '' : ' on'); $('seg-constitucion').className = 'seg-b' + (ruta ? ' on' : '');
+  $('task-h').textContent = ruta ? 'Ruta de constitución' : 'Tareas del equipo';
+  $('task-sub').textContent = ruta ? 'Pasos para formalizar la empresa. Lista orientativa: valídala con un contador o abogado.' : 'Lo que queremos hacer, con responsable y fecha.';
+  $('task-seed').classList.toggle('hidden', !(ruta && all.length === 0));
+  const row = t => {
+    const late = t.due_date && !t.done && t.due_date < today();
+    return `<li class="flex items-center gap-3 px-3 py-3 flex-wrap"><input type="checkbox" ${t.done ? 'checked' : ''} ${ce ? '' : 'disabled'} onchange="toggleTask('${esc(t.id)}',this.checked)" class="w-4 h-4 accent-indigo-500 shrink-0 cursor-pointer">
+      <span class="flex-1 min-w-[10rem] text-sm ${t.done ? 'line-through text-neutral-500' : ''}">${esc(t.title)}</span>
+      ${t.assigned_to ? `<span class="tag">👤 ${esc(pName(t.assigned_to))}</span>` : ''}
+      ${t.due_date ? `<span class="tag ${late ? 'border-rose-500/40 text-rose-400 bg-rose-500/10' : ''}">📅 ${esc(t.due_date)}</span>` : ''}
+      ${t.project_id ? `<span class="tag">📋 ${esc(projName(t.project_id))}</span>` : ''}
+      <button type="button" onclick="deleteTask('${esc(t.id)}')" class="ed text-neutral-500 hover:text-rose-400 text-xs">✕</button></li>`;
+  };
+  const pend = list.filter(t => !t.done), done = list.filter(t => t.done).sort((a, b) => String(b.done_at || '').localeCompare(String(a.done_at || '')));
+  $('task-pending').innerHTML = pend.map(row).join('') || '<li class="p-6 text-center text-sm text-neutral-500">No hay tareas pendientes 🎉</li>';
+  $('task-done').innerHTML = done.map(row).join('') || '<li class="p-6 text-center text-sm text-neutral-500">Aún no hay tareas completadas.</li>';
+  const nd = all.filter(t => t.done).length;
+  $('task-count').textContent = `${all.length - nd} pendientes · ${nd} completadas`;
+  $('task-bar').style.width = (all.length ? Math.round(nd / all.length * 100) : 0) + '%';
 }
 async function addTask() {
   const el = $('task-input'), title = el.value.trim();
   if (!title) return;
-  if (await q(sb.from('tasks').insert({ title }))) el.value = '';
+  if (await q(sb.from('tasks').insert({ title, section: taskSection, assigned_to: $('task-who').value || null, due_date: $('task-due').value || null, project_id: $('task-proj').value || null }))) { el.value = ''; $('task-due').value = ''; }
 }
+async function seedRuta() { await q(sb.from('tasks').insert(SEED.map(title => ({ title, section: 'constitucion' }))), 'Ruta sugerida cargada'); }
 async function toggleTask(id, done) {
   const t = S.tasks.find(x => x.id === id);
   if (t) { t.done = done; t.done_at = done ? new Date().toISOString() : null; renderTasks(); }
@@ -591,18 +653,17 @@ async function toggleTask(id, done) {
 async function deleteTask(id) { await q(sb.from('tasks').delete().eq('id', id)); }
 async function clearDone() {
   if (!S.tasks.some(t => t.done) || !confirm('¿Eliminar todas las tareas completadas?')) return;
-  await q(sb.from('tasks').delete().eq('done', true), 'Historial de tareas limpiado');
+  await q(sb.from('tasks').delete().eq('done', true).eq('section', taskSection), 'Tareas completadas eliminadas');
 }
-
 const CAL_TZ = 'America/Bogota';
-const CAL_COLORS = ['#6366f1', '#34d399', '#f59e0b', '#f43f5e', '#06b6d4', '#a855f7', '#84cc16', '#ec4899'];
+const CAL_COLORS = ['#6366f1', '#34d399', '#f59e0b', '#ef4444', '#06b6d4', '#a855f7', '#84cc16', '#ec4899'];
 const calOn = new Set(['group', 'me']);
 const gcal = () => (S.app_settings.find(s => s.key === 'group_calendar') || {}).value || '';
 function calToggle(k) { calOn.has(k) ? calOn.delete(k) : calOn.add(k); renderCalendar(); }
-function calChip(k, label) { return '<button type="button" onclick="calToggle(\'' + esc(k) + '\')" class="tag px-3 py-1.5 text-xs ' + (calOn.has(k) ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40 font-semibold' : 'text-neutral-400') + '">' + esc(label) + '</button>'; }
+function calChip(k, label) { return `<button type="button" onclick="calToggle('${esc(k)}')" class="tag px-3 py-1 text-xs ${calOn.has(k) ? 'bg-indigo-500/20 text-indigo-200 border-indigo-500/40' : 'text-neutral-400'}">${esc(label)}</button>`; }
 function renderCalendar() {
   const g = gcal(), chips = [], src = [];
-  if (g) { chips.push(calChip('group', '👥 Grupo de Ingeniería')); if (calOn.has('group')) src.push([g, CAL_COLORS[0]]); }
+  if (g) { chips.push(calChip('group', '👥 Grupo')); if (calOn.has('group')) src.push([g, CAL_COLORS[0]]); }
   S.profiles.forEach((p, i) => {
     const mine = p.id === me.id;
     if (!p.calendar_id || !(mine || p.calendar_shared)) return;
@@ -613,30 +674,78 @@ function renderCalendar() {
   $('cal-chips').innerHTML = chips.join('');
   if (document.activeElement !== $('cal-group-input')) $('cal-group-input').value = g;
   $('cal-new').href = 'https://calendar.google.com/calendar/render?action=TEMPLATE' + (g ? '&src=' + encodeURIComponent(g) : '');
-  $('cal-help').textContent = src.length ? '' : (g || chips.length ? 'Activa al menos un calendario en los botones superiores para visualizarlo.' : 'No hay calendarios conectados. El administrador puede enlazar el del equipo y cada integrante el suyo desde "Mi perfil".');
+  $('cal-help').textContent = src.length ? '' : (g || chips.length ? 'Activa al menos un calendario arriba para verlo.' : 'Aún no hay calendarios conectados. Un administrador puede agregar el del grupo, y cada persona puede añadir el suyo desde "Mi perfil".');
   $('cal-frame').classList.toggle('hidden', !src.length);
   if (currentTab !== 'calendar' || !src.length) return;
-  const params = ['ctz=' + encodeURIComponent(CAL_TZ), 'mode=' + $('cal-mode').value, 'wkst=2', 'showTitle=0', 'showPrint=0', 'showTz=0', 'showCalendars=0', 'bgcolor=%230f172a'];
+  const params = ['ctz=' + encodeURIComponent(CAL_TZ), 'mode=' + $('cal-mode').value, 'wkst=2', 'showTitle=0', 'showPrint=0', 'showTz=0', 'showCalendars=0', 'bgcolor=%23ffffff'];
   src.forEach(([id, c]) => params.push('src=' + encodeURIComponent(id), 'color=' + encodeURIComponent(c)));
   const url = 'https://calendar.google.com/calendar/embed?' + params.join('&');
   if ($('cal-frame').dataset.u !== url) { $('cal-frame').dataset.u = url; $('cal-frame').src = url; }
 }
 async function saveGroupCal() {
   const v = $('cal-group-input').value.trim();
-  if (v && !/^[\w.\-+@%]+$/.test(v)) return toast('ID de calendario inválido', true);
-  await q(sb.from('app_settings').upsert({ key: 'group_calendar', value: v }), 'Calendario del grupo actualizado');
+  if (v && !/^[\w.\-+@%]+$/.test(v)) return toast('El ID del calendario no es válido.', true);
+  await q(sb.from('app_settings').upsert({ key: 'group_calendar', value: v }), 'Calendario del grupo guardado');
 }
-
+function renderPartners() {
+  const isAdmin = me.role === 'admin';
+  const rows = S.profiles.map(p => ({ p, c: Number(p.commitment || 0), a: S.finances.filter(f => f.partner_id === p.id && f.type === 'income').reduce((s, f) => s + Number(f.amount), 0) }));
+  const tc = rows.reduce((s, r) => s + r.c, 0), ta = rows.reduce((s, r) => s + r.a, 0);
+  $('par-total').textContent = money(ta); $('par-commit').textContent = money(tc);
+  $('par-pct').textContent = tc > 0 ? Math.round(Math.min(ta, tc) / tc * 100) + '%' : '—';
+  $('par-body').innerHTML = rows.map(({ p, c, a }) => {
+    const share = ta > 0 ? a / ta * 100 : 0;
+    return `<tr><td class="p-3.5 font-semibold">${esc(p.full_name || p.email)}</td>
+      <td class="p-3.5 whitespace-nowrap">${money(c)}${isAdmin ? ` <button type="button" onclick="setCommitment('${esc(p.id)}')" class="text-neutral-400 hover:text-white ml-1" title="Editar">✎</button>` : ''}</td>
+      <td class="p-3.5 font-semibold text-emerald-400 whitespace-nowrap">${money(a)}</td>
+      <td class="p-3.5 whitespace-nowrap ${c > a ? 'text-amber-400' : 'text-neutral-400'}">${money(Math.max(0, c - a))}</td>
+      <td class="p-3.5"><div class="flex items-center gap-2"><div class="bar flex-1"><i style="width:${share}%"></i></div><span class="w-10 text-right">${Math.round(share)}%</span></div></td></tr>`;
+  }).join('') || '<tr><td colspan="5" class="p-8 text-center text-neutral-500">Sin socios registrados.</td></tr>';
+}
+async function setCommitment(id) {
+  const p = S.profiles.find(x => x.id === id);
+  const v = prompt('Aporte comprometido de ' + (p.full_name || p.email) + ' (solo números, sin puntos ni comas):', Math.round(Number(p.commitment || 0)));
+  if (v === null) return;
+  const n = Number(String(v).replace(/[^\d]/g, ''));
+  if (isNaN(n)) return toast('Escribe un número válido.', true);
+  await q(sb.from('profiles').update({ commitment: n }).eq('id', id), 'Aporte comprometido actualizado');
+}
+const minOpen = new Set();
+function openMin(id) {
+  const m = S.minutes.find(x => x.id === id) || {};
+  $('min-id').value = m.id || ''; $('min-head').textContent = m.id ? 'Editar acta' : 'Nueva acta';
+  $('min-name').value = m.title || ''; $('min-date').value = m.meeting_date || today(); $('min-att').value = m.attendees || ''; $('min-sum').value = m.summary || ''; $('min-dec').value = m.decisions || '';
+  openModal('minModal');
+}
+async function saveMin() {
+  const id = $('min-id').value, title = $('min-name').value.trim();
+  if (!title) return toast('Escribe el tema de la reunión.', true);
+  const row = { title, meeting_date: $('min-date').value || today(), attendees: $('min-att').value.trim() || null, summary: $('min-sum').value.trim() || null, decisions: $('min-dec').value.trim() || null };
+  const req = id ? sb.from('minutes').update(row).eq('id', id) : sb.from('minutes').insert(row);
+  if (await q(req, id ? 'Acta actualizada' : 'Acta registrada')) closeModal('minModal');
+}
+async function deleteMin(id) { if (confirm('¿Eliminar esta acta?')) await q(sb.from('minutes').delete().eq('id', id)); }
+function renderMinutes() {
+  const t = ($('min-search')?.value || '').toLowerCase();
+  const list = S.minutes.filter(m => !t || [m.title, m.attendees, m.summary, m.decisions].join(' ').toLowerCase().includes(t));
+  $('min-list').innerHTML = list.map(m => `<details class="card p-5" ${minOpen.has(m.id) ? 'open' : ''} ontoggle="this.open ? minOpen.add('${esc(m.id)}') : minOpen.delete('${esc(m.id)}')">
+    <summary class="flex items-center justify-between gap-3 cursor-pointer list-none"><div><h4 class="font-bold text-sm">${esc(m.title)}</h4><p class="text-xs text-neutral-400 mt-0.5">📅 ${esc(m.meeting_date)}${m.attendees ? ' · 👥 ' + esc(m.attendees) : ''}</p></div>
+      <span class="flex gap-3 text-xs"><button type="button" onclick="event.preventDefault();openMin('${esc(m.id)}')" class="ed text-neutral-400 hover:text-white">✎</button><button type="button" onclick="event.preventDefault();deleteMin('${esc(m.id)}')" class="ad text-neutral-500 hover:text-rose-400">🗑</button></span></summary>
+    <div class="mt-4 space-y-4 text-sm">
+      ${m.summary ? `<div><p class="text-[11px] uppercase tracking-wider text-neutral-400 font-semibold mb-1">Resumen</p><p class="whitespace-pre-wrap text-neutral-300">${esc(m.summary)}</p></div>` : ''}
+      ${m.decisions ? `<div class="rounded-xl border border-indigo-500/30 bg-indigo-500/10 p-4"><p class="text-[11px] uppercase tracking-wider text-indigo-300 font-semibold mb-1">Decisiones y acuerdos</p><p class="whitespace-pre-wrap">${esc(m.decisions)}</p></div>` : ''}
+    </div></details>`).join('') || '<p class="text-center text-sm text-neutral-500 py-10">Aún no hay actas. Registra la primera reunión.</p>';
+}
 function exportCSV() {
   const cell = c => { let s = String(c ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
   const rows = [['Fecha', 'Concepto', 'Categoría', 'Proyecto', 'Tipo', 'Monto']].concat(S.finances.map(f => [f.date, f.concept, f.category || '', projName(f.project_id), f.type === 'income' ? 'Ingreso' : 'Egreso', f.amount]));
   const blob = new Blob(['\ufeff' + rows.map(r => r.map(cell).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = '_finanzas_' + today() + '.csv';
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `movimientos_${today()}.csv`;
   document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
 }
 function exportData() {
-  const blob = new Blob([JSON.stringify({ projects: S.projects, finances: S.finances, profiles: S.profiles, tasks: S.tasks }, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = '_backup_' + today() + '.json';
+  const blob = new Blob([JSON.stringify({ projects: S.projects, finances: S.finances, profiles: S.profiles, tasks: S.tasks, minutes: S.minutes }, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `biomedical_backup_${today()}.json`;
   document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
 }
 </script>
